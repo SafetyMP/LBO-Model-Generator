@@ -73,8 +73,8 @@ def test_with_api_key():
             # Fallback
             business_description = """
             TechCorp is a SaaS company providing project management software for mid-market
-            companies. Founded in 2018, they have grown to $15M annual recurring revenue 
-            with 35% EBITDA margins. The company serves 500+ customers with strong retention 
+            companies. Founded in 2018, they have grown to $15M annual recurring revenue
+            with 35% EBITDA margins. The company serves 500+ customers with strong retention
             rates of 95%. They are looking to expand sales and marketing to accelerate growth.
             """
             company_name = "TechCorp"

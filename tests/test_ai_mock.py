@@ -73,7 +73,7 @@ Working Capital:
 - DPO: {mock_ai_recommendations['days_payable_outstanding']:.0f} days
 
 Debt Structure:
-- Senior Debt: {mock_ai_recommendations['debt_instruments'][0]['ebitda_multiple']:.1f}x EBITDA, 
+- Senior Debt: {mock_ai_recommendations['debt_instruments'][0]['ebitda_multiple']:.1f}x EBITDA,
   {mock_ai_recommendations['debt_instruments'][0]['interest_rate']*100:.1f}% interest, amortizing
 - Subordinated Debt: {mock_ai_recommendations['debt_instruments'][1]['ebitda_multiple']:.1f}x EBITDA,
   {mock_ai_recommendations['debt_instruments'][1]['interest_rate']*100:.1f}% interest, bullet
@@ -111,14 +111,14 @@ try:
     print("\n" + "=" * 80)
     print("KEY METRICS FROM MODEL")
     print("=" * 80)
-    print(f"\nYear 1:")
+    print("\nYear 1:")
     print(f"  Revenue: ${model.income_statement.loc['Revenue', 1]:,.0f}")
     print(f"  EBITDA: ${model.income_statement.loc['EBITDA', 1]:,.0f}")
     print(
         f"  EBITDA Margin: {model.income_statement.loc['EBITDA', 1] / model.income_statement.loc['Revenue', 1] * 100:.1f}%"
     )
 
-    print(f"\nYear 5:")
+    print("\nYear 5:")
     print(f"  Revenue: ${model.income_statement.loc['Revenue', 5]:,.0f}")
     print(f"  EBITDA: ${model.income_statement.loc['EBITDA', 5]:,.0f}")
     print(

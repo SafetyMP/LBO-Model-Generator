@@ -52,25 +52,25 @@ def test_amortizing_debt_scenario():
         model = create_lbo_from_inputs(config)
         validation = model.get_debt_schedule_validation()
 
-        print(f"\nValidation Results:")
+        print("\nValidation Results:")
         print(f"  Errors: {len(validation['errors'])}")
         print(f"  Warnings: {len(validation['warnings'])}")
         print(f"  Scenarios: {list(validation['scenarios'].keys())}")
 
         if validation["errors"]:
-            print(f"\n  ✗ Errors found:")
+            print("\n  ✗ Errors found:")
             for error in validation["errors"]:
                 print(f"    - {error}")
         else:
-            print(f"\n  ✓ No errors")
+            print("\n  ✓ No errors")
 
         if validation["warnings"]:
-            print(f"\n  ⚠ Warnings:")
+            print("\n  ⚠ Warnings:")
             for warning in validation["warnings"]:
                 print(f"    - {warning}")
 
         if validation["scenarios"]["amortizing"]:
-            print(f"\n  ✓ Amortizing debt scenario detected:")
+            print("\n  ✓ Amortizing debt scenario detected:")
             for detail in validation["scenarios"]["amortizing"]:
                 print(f"    - {detail}")
 
@@ -124,19 +124,19 @@ def test_bullet_debt_scenario():
         model = create_lbo_from_inputs(config)
         validation = model.get_debt_schedule_validation()
 
-        print(f"\nValidation Results:")
+        print("\nValidation Results:")
         print(f"  Errors: {len(validation['errors'])}")
         print(f"  Warnings: {len(validation['warnings'])}")
 
         if validation["errors"]:
-            print(f"\n  ✗ Errors found:")
+            print("\n  ✗ Errors found:")
             for error in validation["errors"]:
                 print(f"    - {error}")
         else:
-            print(f"\n  ✓ No errors")
+            print("\n  ✓ No errors")
 
         if validation["scenarios"]["bullet"]:
-            print(f"\n  ✓ Bullet debt scenario detected:")
+            print("\n  ✓ Bullet debt scenario detected:")
             for detail in validation["scenarios"]["bullet"]:
                 print(f"    - {detail}")
 
@@ -198,19 +198,19 @@ def test_mixed_debt_scenario():
         model = create_lbo_from_inputs(config)
         validation = model.get_debt_schedule_validation()
 
-        print(f"\nValidation Results:")
+        print("\nValidation Results:")
         print(f"  Errors: {len(validation['errors'])}")
         print(f"  Warnings: {len(validation['warnings'])}")
 
         if validation["errors"]:
-            print(f"\n  ✗ Errors found:")
+            print("\n  ✗ Errors found:")
             for error in validation["errors"]:
                 print(f"    - {error}")
         else:
-            print(f"\n  ✓ No errors")
+            print("\n  ✓ No errors")
 
         if validation["scenarios"]["mixed_structure"]:
-            print(f"\n  ✓ Mixed debt structure detected:")
+            print("\n  ✓ Mixed debt structure detected:")
             for detail in validation["scenarios"]["mixed_structure"]:
                 print(f"    - {detail}")
 
@@ -266,19 +266,19 @@ def test_cash_flow_sweep_scenario():
         model = create_lbo_from_inputs(config)
         validation = model.get_debt_schedule_validation()
 
-        print(f"\nValidation Results:")
+        print("\nValidation Results:")
         print(f"  Errors: {len(validation['errors'])}")
         print(f"  Warnings: {len(validation['warnings'])}")
 
         if validation["errors"]:
-            print(f"\n  ✗ Errors found:")
+            print("\n  ✗ Errors found:")
             for error in validation["errors"]:
                 print(f"    - {error}")
         else:
-            print(f"\n  ✓ No errors")
+            print("\n  ✓ No errors")
 
         if validation["scenarios"]["cash_flow_sweep"]:
-            print(f"\n  ✓ Cash flow sweep detected:")
+            print("\n  ✓ Cash flow sweep detected:")
             for detail in validation["scenarios"]["cash_flow_sweep"]:
                 print(f"    - {detail}")
 
@@ -316,7 +316,7 @@ if __name__ == "__main__":
         status = "✓ VALIDATION WORKING" if not passed else "✓ NO ISSUES DETECTED"
         print(f"  {test_name}: {status}")
         if not passed:
-            print(f"    (Validation correctly detected debt schedule issues)")
+            print("    (Validation correctly detected debt schedule issues)")
 
     print(f"\nTotal: {len(results)} scenarios tested")
     print(f"Validation Errors Detected: {sum(len(r) for r in results if not r[1])}")

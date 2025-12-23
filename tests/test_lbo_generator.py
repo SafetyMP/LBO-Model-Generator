@@ -376,7 +376,7 @@ def test_ai_recommendations():
         model = create_lbo_from_inputs(recommendations)
         returns = model.calculate_returns()
 
-        print(f"✓ Model generated successfully from AI recommendations")
+        print("✓ Model generated successfully from AI recommendations")
         print(f"  - MOIC: {returns['moic']:.2f}x")
         # IRR is returned as decimal (e.g., 0.24), convert to percentage for display
         irr_pct = returns["irr"] * 100 if returns["irr"] < 1 else returns["irr"]

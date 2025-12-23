@@ -12,7 +12,6 @@ st.set_page_config(
 )
 
 from streamlit_modules.app_config import initialize_session_state
-from streamlit_modules.app_utils import cached_calculate_lbo
 from streamlit_modules.app_export import export_pdf_button
 
 # Initialize session state

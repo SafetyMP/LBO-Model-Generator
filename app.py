@@ -14,7 +14,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",  # Force sidebar to be open
 )
 
-from streamlit_modules.app_config import initialize_session_state, get_openai_api_key, AI_AVAILABLE
+from streamlit_modules.app_config import initialize_session_state, get_openai_api_key
 
 # Initialize
 initialize_session_state()
