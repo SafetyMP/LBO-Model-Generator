@@ -34,6 +34,7 @@ jobs:
         # Check for critical errors (fail on these)
         flake8 src/ streamlit_modules/ pages/ app.py tests/ \
           --count --select=E9,F63,F7,F82 --show-source --statistics || true
+        # Note: E122 (indentation) false positives in docstrings are acceptable
         # Check with project configuration (warn only, ignore unused imports)
         flake8 src/ streamlit_modules/ pages/ app.py tests/ \
           --max-line-length=100 \
