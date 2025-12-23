@@ -65,7 +65,7 @@ lbo_model_generator/
 │   │   ├── TEMPLATE_ENHANCEMENTS.md
 │   │   └── PROJECT_ORGANIZATION.md (this file)
 │   ├── development/              # Development docs
-│   │   ├── PEP8_COMPLIANCE_REPORT.md
+│   │   ├── PEP8_COMPLIANCE_REPORT_2025.md
 │   │   └── CODE_QUALITY.md
 │   ├── analysis/                 # Analysis reports
 │   ├── archive/                  # Archived documentation
