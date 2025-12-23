@@ -1,0 +1,183 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Excel output files
+*.xlsx
+!examples/*.xlsx
+
+# Test outputs
+output/
+test_*.xlsx
+output/test_files/
+
+# Environment variables
+.env
+.env.local
+
+# API keys
+*_key.txt
+*_api_key.txt
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+~$*
+*.bak
+*.swp
+
+# JSON outputs (except templates and configs)
+*.json
+!examples/*.json
+!tests/*.json
+!*_config.json
+!lbo_input_template.json
+
+# Audit and analysis reports (move to docs/analysis if needed)
+CODE_AUDIT_REPORT.json
+AUDIT_REPORT.json
+model_logic_audit.json
+reasonability_analysis.json
+excel_format_recommendations.json
+
+# Analysis and review markdown files (development docs)
+ORGANIZATION_COMPLETE.md
+IMPLEMENTATION_SUMMARY.md
+MODEL_ALIGNMENT_ANALYSIS.md
+AUDIT_IMPLEMENTATION_SUMMARY.md
+AURASTREAM_MODEL_ANALYSIS.md
+CODEBASE_REVIEW_2024.md
+IMPROVEMENTS_SUMMARY.md
+CLEANUP_COMPLETE.md
+CODE_FIXES_IMPLEMENTATION.md
+CODE_FIXES_COMPLETE.md
+IRR_ANALYSIS.md
+IMPROVEMENTS_IMPLEMENTED.md
+CODEBASE_REVIEW_FOLLOWUP.md
+LEGACY_CLEANUP_SUMMARY.md
+CODE_IMPROVEMENTS_RECOMMENDATIONS.md
+RECOMMENDATIONS.md
+CODEBASE_REVIEW.md
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Build artifacts
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Excel output files
+*.xlsx
+!examples/*.xlsx
+
+# Test outputs
+output/
+test_*.xlsx
+output/test_files/
+
+# Environment variables
+.env
+.env.local
+
+# API keys
+*_key.txt
+*_api_key.txt
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+~$*
+*.bak
+*.swp
+
+# Coverage reports
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+

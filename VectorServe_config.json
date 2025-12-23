@@ -1,0 +1,54 @@
+{
+  "company_name": "VectorServe",
+  "entry_ebitda": 62000,
+  "entry_multiple": 8.5,
+  "existing_debt": 0,
+  "existing_cash": 10000,
+  "transaction_expenses_pct": 0.03,
+  "financing_fees_pct": 0.02,
+  "revenue_growth_rate": [
+    0.059,
+    0.059,
+    0.059,
+    0.059,
+    0.059
+  ],
+  "debt_instruments": [
+    {
+      "name": "Senior Secured Term Loan",
+      "interest_rate": 0.07,
+      "ebitda_multiple": 4.0,
+      "amortization_schedule": "amortizing",
+      "amortization_periods": 5,
+      "priority": 1
+    },
+    {
+      "name": "Subordinated Debt",
+      "interest_rate": 0.11,
+      "ebitda_multiple": 2.0,
+      "amortization_schedule": "bullet",
+      "priority": 2
+    }
+  ],
+  "cogs_pct_of_revenue": 0.51,
+  "sganda_pct_of_revenue": 0.275,
+  "depreciation_pct_of_ppe": 0.10,
+  "capex_pct_of_revenue": 0.022,
+  "tax_rate": 0.21,
+  "days_sales_outstanding": 45.0,
+  "days_inventory_outstanding": 15.0,
+  "days_payable_outstanding": 30.0,
+  "initial_ppe": 0,
+  "initial_ar": 0,
+  "initial_inventory": 0,
+  "initial_ap": 0,
+  "min_cash_balance": 10000,
+  "exit_year": 5,
+  "exit_multiple": 9.0,
+  "target_exit_debt": 180000,
+  "max_debt_paydown_per_year": 0,
+  "fcf_conversion_rate": 0.85,
+  "starting_revenue": 310000,
+  "business_description": "Asset-light industrial & infrastructure services provider. Non-discretionary, compliance-driven services with long-standing customer relationships (14+ years average tenure). Recession-resilient demand with 65% recurring revenue, 96% contract renewal rate. Strong cash flow profile: 85% EBITDA to FCF conversion, structural working capital source. Market: $12B fragmented, no player >5% share, regulatory barriers limit new entrants.",
+  "industry": "Asset-light industrial & infrastructure services"
+}
