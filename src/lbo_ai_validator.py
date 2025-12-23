@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ValidationResult:
     """Result of AI validation."""
+
     is_valid: bool
     warnings: List[str]
     errors: List[str]
@@ -38,6 +39,7 @@ class ValidationResult:
 @dataclass
 class ScenarioAnalysis:
     """Scenario analysis result."""
+
     base_case: Dict[str, Any]
     high_case: Dict[str, Any]
     low_case: Dict[str, Any]
@@ -48,6 +50,7 @@ class ScenarioAnalysis:
 @dataclass
 class BenchmarkResult:
     """Market benchmarking result."""
+
     industry_averages: Dict[str, float]
     quartiles: Dict[str, Dict[str, float]]
     deviations: Dict[str, float]
@@ -56,11 +59,11 @@ class BenchmarkResult:
 
 class LBOModelAIValidator:
     """Comprehensive AI-powered validator and enhancer for LBO models."""
-    
+
     def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4o-mini"):
         """
         Initialize AI validator.
-        
+
         Args:
             api_key: OpenAI API key (or set OPENAI_API_KEY env variable)
             model: Model to use (default: gpt-4o-mini for cost efficiency)
@@ -70,72 +73,65 @@ class LBOModelAIValidator:
             self.api_key = validate_api_key(api_key)
         except LBOConfigurationError as e:
             raise LBOConfigurationError(str(e)) from e
-        
+
         self.client = openai.OpenAI(api_key=self.api_key)
         self.model = model
-    
+
     # ==================== HELPER METHODS FOR AI OPERATIONS ====================
-    
-    def _call_openai_api(self, system_message: str, user_prompt: str, 
-                        temperature: float = 0.3, 
-                        response_format: Optional[Dict] = None) -> str:
+
+    def _call_openai_api(
+        self, system_message: str, user_prompt: str, temperature: float = 0.3, response_format: Optional[Dict] = None
+    ) -> str:
         """Make OpenAI API call with error handling.
-        
+
         Args:
             system_message: System role message
             user_prompt: User prompt content
             temperature: Temperature setting (default: 0.3)
             response_format: Optional response format (e.g., {"type": "json_object"})
-            
+
         Returns:
             Response content string
-            
+
         Raises:
             openai.OpenAIError: For API errors
         """
-        messages = [
-            {"role": "system", "content": system_message},
-            {"role": "user", "content": user_prompt}
-        ]
-        
-        kwargs = {
-            "model": self.model,
-            "messages": messages,
-            "temperature": temperature
-        }
-        
+        messages = [{"role": "system", "content": system_message}, {"role": "user", "content": user_prompt}]
+
+        kwargs = {"model": self.model, "messages": messages, "temperature": temperature}
+
         if response_format:
             kwargs["response_format"] = response_format
-        
+
         response = self.client.chat.completions.create(**kwargs)
         return response.choices[0].message.content
-    
+
     def _parse_json_response(self, content: str, default: Optional[Dict] = None) -> Dict:
         """Parse JSON response with error handling.
-        
+
         Args:
             content: JSON string to parse
             default: Default dict to return on error (default: {})
-            
+
         Returns:
             Parsed dictionary
         """
         if default is None:
             default = {}
-        
+
         try:
             return json.loads(content)
         except json.JSONDecodeError as e:
             logger.error(f"JSON decode error: {e}", exc_info=True)
             return default
-    
+
     def _create_error_validation_result(self, error: Exception, error_type: str) -> ValidationResult:
         """Create error ValidationResult.
-        
+
         Args:
             error: Exception that occurred
             error_type: Type of error
-            
+
         Returns:
             ValidationResult with error information
         """
@@ -145,16 +141,16 @@ class LBOModelAIValidator:
             warnings=[],
             suggestions=[],
             confidence_score=0.0,
-            details={"error": str(error), "error_type": error_type}
+            details={"error": str(error), "error_type": error_type},
         )
-    
+
     def _create_error_dict_response(self, error: Exception, default_keys: Dict[str, Any]) -> Dict[str, Any]:
         """Create error dictionary response.
-        
+
         Args:
             error: Exception that occurred
             default_keys: Dictionary with default values for all keys
-            
+
         Returns:
             Dictionary with error information
         """
@@ -164,38 +160,37 @@ class LBOModelAIValidator:
         elif "root_cause" in result:
             result["root_cause"] = f"Error: {str(error)}"
         return result
-    
-    def _handle_ai_error(self, error: Exception, error_type: str, 
-                        result_type: str = "validation") -> Any:
+
+    def _handle_ai_error(self, error: Exception, error_type: str, result_type: str = "validation") -> Any:
         """Handle AI errors and return appropriate error response.
-        
+
         Args:
             error: Exception that occurred
             error_type: Type of error
             result_type: Type of result ("validation", "dict", "string")
-            
+
         Returns:
             Appropriate error response based on result_type
         """
         logger.error(f"AI {error_type} error: {error}", exc_info=True)
-        
+
         if result_type == "validation":
             return self._create_error_validation_result(error, error_type)
         elif result_type == "dict":
             return {"error": str(error), "error_type": error_type}
         else:  # string
             return f"Error: {str(error)}"
-    
+
     # ==================== 1. MODEL VALIDATION AND QUALITY ASSURANCE ====================
-    
+
     def validate_model_quality(self, assumptions: Dict, industry: Optional[str] = None) -> ValidationResult:
         """
         Validate LBO model assumptions for realism and common errors.
-        
+
         Args:
             assumptions: LBO assumptions dictionary
             industry: Industry sector for context
-            
+
         Returns:
             ValidationResult with warnings, errors, and suggestions
         """
@@ -205,22 +200,20 @@ class LBOModelAIValidator:
             "Analyze assumptions for realism, consistency, and common errors. "
             "Provide specific, actionable feedback."
         )
-        
+
         try:
             content = self._call_openai_api(
-                system_message, prompt, 
-                temperature=0.3, 
-                response_format={"type": "json_object"}
+                system_message, prompt, temperature=0.3, response_format={"type": "json_object"}
             )
             result_json = self._parse_json_response(content)
-            
+
             return ValidationResult(
                 is_valid=result_json.get("is_valid", True),
                 warnings=result_json.get("warnings", []),
                 errors=result_json.get("errors", []),
                 suggestions=result_json.get("suggestions", []),
                 confidence_score=result_json.get("confidence_score", 0.8),
-                details=result_json.get("details", {})
+                details=result_json.get("details", {}),
             )
         except openai.OpenAIError as e:
             return self._handle_ai_error(e, "openai_api", "validation")
@@ -230,7 +223,7 @@ class LBOModelAIValidator:
             return self._create_error_validation_result(e, "data_processing_error")
         except Exception as e:
             return self._handle_ai_error(e, "unexpected", "validation")
-    
+
     def _create_validation_prompt(self, assumptions: Dict, industry: Optional[str]) -> str:
         """Create validation prompt."""
         prompt = f"""Analyze the following LBO model assumptions for quality and realism.
@@ -240,7 +233,7 @@ ASSUMPTIONS:
 """
         if industry:
             prompt += f"\nINDUSTRY: {industry}"
-        
+
         prompt += """
 Validate for:
 1. Realistic growth rates (industry-appropriate)
@@ -268,17 +261,17 @@ Return JSON with:
 }
 """
         return prompt
-    
+
     # ==================== 2. OUTPUT REVIEW AND CONSISTENCY CHECKS ====================
-    
+
     def review_generated_model(self, excel_file_path: str, model_summary: Dict) -> ValidationResult:
         """
         Review generated Excel model for consistency and errors.
-        
+
         Args:
             excel_file_path: Path to generated Excel file
             model_summary: Summary of model assumptions and key outputs
-            
+
         Returns:
             ValidationResult with review findings
         """
@@ -286,7 +279,7 @@ Return JSON with:
             # Extract key information from Excel
             wb = openpyxl.load_workbook(excel_file_path, data_only=False)
             model_data = self._extract_model_data(wb)
-            
+
             prompt = f"""Review the following LBO model Excel file for consistency and errors.
 
 MODEL SUMMARY:
@@ -320,61 +313,67 @@ Return JSON:
     }}
 }
 """
-            
+
             system_message = (
                 "You are an Excel financial model auditor. Review LBO models for errors, "
                 "inconsistencies, and best practices."
             )
             content = self._call_openai_api(
-                system_message, prompt,
-                temperature=0.2,
-                response_format={"type": "json_object"}
+                system_message, prompt, temperature=0.2, response_format={"type": "json_object"}
             )
             result_json = self._parse_json_response(content)
-            
+
             return ValidationResult(
                 is_valid=result_json.get("is_valid", True),
                 warnings=result_json.get("warnings", []),
                 errors=result_json.get("errors", []),
                 suggestions=result_json.get("suggestions", []),
                 confidence_score=result_json.get("confidence_score", 0.8),
-                details=result_json.get("details", {})
+                details=result_json.get("details", {}),
             )
         except openai.OpenAIError as e:
             return self._handle_ai_error(e, "openai_api", "validation")
         except Exception as e:
             return self._handle_ai_error(e, "unexpected", "validation")
-    
+
     def _extract_model_data(self, wb: openpyxl.Workbook) -> Dict:
         """Extract key data from Excel workbook."""
         data = {}
-        
+
         try:
-            if 'Final' in wb.sheetnames:
-                ws = wb['Final']
+            if "Final" in wb.sheetnames:
+                ws = wb["Final"]
                 # Extract key values (simplified extraction)
-                data['sheets'] = wb.sheetnames
-                data['has_sources_uses'] = any('SOURCES' in str(cell.value) for row in ws.iter_rows() for cell in row)
-                data['has_income_statement'] = any('INCOME STATEMENT' in str(cell.value) for row in ws.iter_rows() for cell in row)
-                data['has_balance_sheet'] = any('BALANCE SHEET' in str(cell.value) for row in ws.iter_rows() for cell in row)
-                data['has_cash_flow'] = any('CASH FLOW' in str(cell.value) for row in ws.iter_rows() for cell in row)
-                data['has_debt_schedule'] = any('DEBT SCHEDULE' in str(cell.value) for row in ws.iter_rows() for cell in row)
+                data["sheets"] = wb.sheetnames
+                data["has_sources_uses"] = any("SOURCES" in str(cell.value) for row in ws.iter_rows() for cell in row)
+                data["has_income_statement"] = any(
+                    "INCOME STATEMENT" in str(cell.value) for row in ws.iter_rows() for cell in row
+                )
+                data["has_balance_sheet"] = any(
+                    "BALANCE SHEET" in str(cell.value) for row in ws.iter_rows() for cell in row
+                )
+                data["has_cash_flow"] = any("CASH FLOW" in str(cell.value) for row in ws.iter_rows() for cell in row)
+                data["has_debt_schedule"] = any(
+                    "DEBT SCHEDULE" in str(cell.value) for row in ws.iter_rows() for cell in row
+                )
         except (KeyError, ValueError, TypeError):
             # Ignore missing or invalid keys in response
             pass
-        
+
         return data
-    
+
     # ==================== 3. SCENARIO ANALYSIS AND SENSITIVITY TESTING ====================
-    
-    def generate_sensitivity_scenarios(self, base_assumptions: Dict, industry: Optional[str] = None) -> ScenarioAnalysis:
+
+    def generate_sensitivity_scenarios(
+        self, base_assumptions: Dict, industry: Optional[str] = None
+    ) -> ScenarioAnalysis:
         """
         Generate High/Base/Low scenarios and sensitivity analysis.
-        
+
         Args:
             base_assumptions: Base case assumptions
             industry: Industry sector
-            
+
         Returns:
             ScenarioAnalysis with scenarios and sensitivity matrix
         """
@@ -385,7 +384,7 @@ BASE ASSUMPTIONS:
 """
         if industry:
             prompt += f"\nINDUSTRY: {industry}"
-        
+
         prompt += """
 Create:
 1. High Case scenario (optimistic but realistic)
@@ -405,47 +404,40 @@ Return JSON:
     }}
 }
 """
-        
+
         try:
             system_message = (
-                "You are a financial analyst expert in scenario analysis and "
-                "sensitivity testing for LBO models."
+                "You are a financial analyst expert in scenario analysis and " "sensitivity testing for LBO models."
             )
             content = self._call_openai_api(
-                system_message, prompt,
-                temperature=0.4,
-                response_format={"type": "json_object"}
+                system_message, prompt, temperature=0.4, response_format={"type": "json_object"}
             )
             result_json = self._parse_json_response(content)
-            
+
             return ScenarioAnalysis(
                 base_case=result_json.get("base_case", {}),
                 high_case=result_json.get("high_case", {}),
                 low_case=result_json.get("low_case", {}),
                 key_assumptions=result_json.get("key_assumptions", []),
-                sensitivity_matrix=result_json.get("sensitivity_matrix", {})
+                sensitivity_matrix=result_json.get("sensitivity_matrix", {}),
             )
         except (openai.OpenAIError, json.JSONDecodeError, LBOAIServiceError) as e:
             logger.error(f"Error generating scenarios: {e}", exc_info=True)
             return ScenarioAnalysis(
-                base_case=base_assumptions,
-                high_case={},
-                low_case={},
-                key_assumptions=[],
-                sensitivity_matrix={}
+                base_case=base_assumptions, high_case={}, low_case={}, key_assumptions=[], sensitivity_matrix={}
             )
-    
+
     # ==================== 4. NATURAL LANGUAGE QUERY INTERFACE ====================
-    
+
     def query_model(self, question: str, model_data: Dict, assumptions: Optional[Dict] = None) -> str:
         """
         Answer natural language questions about the model.
-        
+
         Args:
             question: User's question
             model_data: Model outputs and key metrics
             assumptions: Model assumptions (optional)
-            
+
         Returns:
             Natural language answer
         """
@@ -458,9 +450,9 @@ MODEL DATA:
 """
         if assumptions:
             prompt += f"\nASSUMPTIONS:\n{json.dumps(assumptions, indent=2)}"
-        
+
         prompt += "\n\nProvide a clear, concise answer. If you need more information, say so."
-        
+
         try:
             system_message = (
                 "You are a financial modeling expert helping users understand LBO models. "
@@ -470,17 +462,17 @@ MODEL DATA:
             return content.strip()
         except Exception as e:
             return self._handle_ai_error(e, "query", "string")
-    
+
     # ==================== 5. MARKET BENCHMARKING AND COMPARISON ====================
-    
+
     def benchmark_against_market(self, assumptions: Dict, industry: str) -> BenchmarkResult:
         """
         Compare model assumptions against market benchmarks.
-        
+
         Args:
             assumptions: Model assumptions
             industry: Industry sector
-            
+
         Returns:
             BenchmarkResult with comparisons and recommendations
         """
@@ -521,44 +513,38 @@ Return JSON:
     "recommendations": ["recommendation1", "recommendation2"]
 }}
 """
-        
+
         try:
             system_message = (
-                "You are a market research analyst with expertise in LBO transaction data "
-                "and industry benchmarks."
+                "You are a market research analyst with expertise in LBO transaction data " "and industry benchmarks."
             )
             content = self._call_openai_api(
-                system_message, prompt,
-                temperature=0.3,
-                response_format={"type": "json_object"}
+                system_message, prompt, temperature=0.3, response_format={"type": "json_object"}
             )
             result_json = self._parse_json_response(content)
-            
+
             return BenchmarkResult(
                 industry_averages=result_json.get("industry_averages", {}),
                 quartiles=result_json.get("quartiles", {}),
                 deviations=result_json.get("deviations", {}),
-                recommendations=result_json.get("recommendations", [])
+                recommendations=result_json.get("recommendations", []),
             )
         except Exception as e:
             logger.error(f"Error during benchmarking: {e}", exc_info=True)
             return BenchmarkResult(
-                industry_averages={},
-                quartiles={},
-                deviations={},
-                recommendations=[f"Benchmarking error: {str(e)}"]
+                industry_averages={}, quartiles={}, deviations={}, recommendations=[f"Benchmarking error: {str(e)}"]
             )
-    
+
     # ==================== 6. FORMULA EXPLANATION AND DOCUMENTATION ====================
-    
+
     def generate_model_documentation(self, excel_file_path: str, assumptions: Dict) -> str:
         """
         Generate comprehensive documentation for the model.
-        
+
         Args:
             excel_file_path: Path to Excel file
             assumptions: Model assumptions
-            
+
         Returns:
             Markdown documentation string
         """
@@ -581,7 +567,7 @@ Create documentation including:
 
 Return markdown-formatted documentation.
 """
-        
+
         try:
             system_message = (
                 "You are a technical writer specializing in financial model documentation. "
@@ -591,19 +577,20 @@ Return markdown-formatted documentation.
             return content.strip()
         except Exception as e:
             return self._handle_ai_error(e, "documentation", "string")
-    
+
     # ==================== 7. ERROR DIAGNOSIS AND TROUBLESHOOTING ====================
-    
-    def diagnose_model_errors(self, error_message: str, assumptions: Dict, 
-                             stack_trace: Optional[str] = None) -> Dict[str, Any]:
+
+    def diagnose_model_errors(
+        self, error_message: str, assumptions: Dict, stack_trace: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
         Diagnose errors and provide fix suggestions.
-        
+
         Args:
             error_message: Error message
             assumptions: Model assumptions
             stack_trace: Optional stack trace
-            
+
         Returns:
             Dictionary with diagnosis and fixes
         """
@@ -614,7 +601,7 @@ ERROR MESSAGE:
 """
         if stack_trace:
             prompt += f"\nSTACK TRACE:\n{stack_trace}\n"
-        
+
         prompt += f"\nASSUMPTIONS:\n{json.dumps(assumptions, indent=2)}\n"
         prompt += """
 Provide:
@@ -632,39 +619,37 @@ Return JSON:
     "severity": "high/medium/low"
 }
 """
-        
+
         default_response = {
             "root_cause": "",
             "fix_suggestions": [],
             "common_solutions": [],
             "prevention": [],
-            "severity": "unknown"
+            "severity": "unknown",
         }
-        
+
         try:
             system_message = (
                 "You are a debugging expert specializing in financial modeling errors. "
                 "Diagnose errors accurately and provide actionable fixes."
             )
             content = self._call_openai_api(
-                system_message, prompt,
-                temperature=0.3,
-                response_format={"type": "json_object"}
+                system_message, prompt, temperature=0.3, response_format={"type": "json_object"}
             )
             return self._parse_json_response(content, default_response)
         except Exception as e:
             return self._create_error_dict_response(e, default_response)
-    
+
     # ==================== 8. OPTIMIZATION SUGGESTIONS ====================
-    
+
     def optimize_debt_structure(self, model_data: Dict, assumptions: Dict) -> Dict[str, Any]:
         """
         Suggest optimal debt structure and deal terms.
-        
+
         Args:
             model_data: Model outputs (IRR, MOIC, cash flows)
             assumptions: Current assumptions
-            
+
         Returns:
             Optimization recommendations
         """
@@ -692,38 +677,36 @@ Return JSON:
     "implementation_steps": ["step1", "step2"]
 }
 """
-        
+
         default_response = {
             "recommended_debt_structure": {},
             "expected_irr_improvement": 0,
             "expected_moic_improvement": 0,
             "risk_analysis": "",
-            "implementation_steps": []
+            "implementation_steps": [],
         }
-        
+
         try:
             system_message = (
                 "You are an LBO structuring expert. Optimize deal structures for maximum "
                 "returns while managing risk."
             )
             content = self._call_openai_api(
-                system_message, prompt,
-                temperature=0.4,
-                response_format={"type": "json_object"}
+                system_message, prompt, temperature=0.4, response_format={"type": "json_object"}
             )
             return self._parse_json_response(content, default_response)
         except Exception as e:
             return self._create_error_dict_response(e, default_response)
-    
+
     # ==================== 9. DYNAMIC PROMPT ENHANCEMENT ====================
-    
+
     def enhance_business_description(self, user_description: str) -> Dict[str, Any]:
         """
         Enhance and enrich business descriptions.
-        
+
         Args:
             user_description: User's business description
-            
+
         Returns:
             Enhanced description and suggestions
         """
@@ -746,30 +729,30 @@ Return JSON:
     "clarifying_questions": ["question1", "question2"]
 }
 """
-        
+
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a business analyst expert at extracting and organizing business information for financial modeling."
+                        "content": "You are a business analyst expert at extracting and organizing business information for financial modeling.",
                     },
-                    {"role": "user", "content": prompt}
+                    {"role": "user", "content": prompt},
                 ],
                 temperature=0.5,
-                response_format={"type": "json_object"}
+                response_format={"type": "json_object"},
             )
-            
+
             return json.loads(response.choices[0].message.content)
-            
+
         except openai.OpenAIError as e:
             logger.error(f"OpenAI API error enhancing description: {e}", exc_info=True)
             return {
                 "enhanced_description": user_description,
                 "missing_information": [],
                 "suggested_metrics": [],
-                "clarifying_questions": []
+                "clarifying_questions": [],
             }
         except Exception as e:
             logger.error(f"Unexpected error enhancing description: {e}", exc_info=True)
@@ -777,21 +760,20 @@ Return JSON:
                 "enhanced_description": user_description,
                 "missing_information": [],
                 "suggested_metrics": [],
-                "clarifying_questions": []
+                "clarifying_questions": [],
             }
-    
+
     # ==================== 10. REAL-TIME GUIDANCE DURING MODEL BUILDING ====================
-    
-    def get_contextual_help(self, current_step: str, user_inputs: Dict, 
-                           field_name: Optional[str] = None) -> str:
+
+    def get_contextual_help(self, current_step: str, user_inputs: Dict, field_name: Optional[str] = None) -> str:
         """
         Provide contextual help during model building.
-        
+
         Args:
             current_step: Current step in model building
             user_inputs: Current user inputs
             field_name: Specific field being filled (optional)
-            
+
         Returns:
             Helpful guidance text
         """
@@ -801,7 +783,7 @@ CURRENT STEP: {current_step}
 """
         if field_name:
             prompt += f"CURRENT FIELD: {field_name}\n"
-        
+
         prompt += f"CURRENT INPUTS:\n{json.dumps(user_inputs, indent=2)}\n"
         prompt += """
 Provide:
@@ -813,22 +795,22 @@ Provide:
 
 Keep response concise and actionable (2-3 sentences).
 """
-        
+
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a helpful financial modeling assistant providing real-time guidance."
+                        "content": "You are a helpful financial modeling assistant providing real-time guidance.",
                     },
-                    {"role": "user", "content": prompt}
+                    {"role": "user", "content": prompt},
                 ],
-                temperature=0.5
+                temperature=0.5,
             )
-            
+
             return response.choices[0].message.content.strip()
-            
+
         except openai.OpenAIError as e:
             logger.error(f"OpenAI API error providing help: {e}", exc_info=True)
             return f"Error providing help: {str(e)}"
@@ -838,15 +820,17 @@ Keep response concise and actionable (2-3 sentences).
 
 
 # Convenience functions
-def validate_lbo_model(assumptions: Dict, industry: Optional[str] = None, 
-                      api_key: Optional[str] = None) -> ValidationResult:
+def validate_lbo_model(
+    assumptions: Dict, industry: Optional[str] = None, api_key: Optional[str] = None
+) -> ValidationResult:
     """Convenience function for model validation."""
     validator = LBOModelAIValidator(api_key=api_key)
     return validator.validate_model_quality(assumptions, industry)
 
 
-def query_lbo_model(question: str, model_data: Dict, assumptions: Optional[Dict] = None,
-                   api_key: Optional[str] = None) -> str:
+def query_lbo_model(
+    question: str, model_data: Dict, assumptions: Optional[Dict] = None, api_key: Optional[str] = None
+) -> str:
     """Convenience function for querying models."""
     validator = LBOModelAIValidator(api_key=api_key)
     return validator.query_model(question, model_data, assumptions)
@@ -868,4 +852,3 @@ if __name__ == "__main__":
     print("8. Optimization suggestions")
     print("9. Prompt enhancement")
     print("10. Real-time guidance")
-
