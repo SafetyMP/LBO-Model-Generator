@@ -2036,7 +2036,6 @@ class LBOModel:
         except ImportError:
             from lbo_ai_validator import LBOModelAIValidator
 
-            from lbo_ai_validator import LBOModelAIValidator
         try:
             validator = LBOModelAIValidator(api_key=api_key)
             returns = self.calculate_returns()
