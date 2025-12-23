@@ -13,7 +13,7 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 setup(
     name="lbo-model-generator",
     version="1.0.0",
-    author="LBO Model Generator Team",
+    author="Sage Hart",
     description="A comprehensive tool for generating Leveraged Buyout (LBO) financial models",
     long_description=long_description,
     long_description_content_type="text/markdown",

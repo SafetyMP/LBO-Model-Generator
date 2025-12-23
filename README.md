@@ -422,7 +422,7 @@ If you use this tool in your research or work, please consider citing:
 ```bibtex
 @software{lbo_model_generator,
   title = {LBO Model Generator},
-  author = {LBO Model Generator Team},
+  author = {Sage Hart},
   year = {2024},
   license = {Apache-2.0},
   url = {https://github.com/SafetyMP/LBO-Model-Generator}

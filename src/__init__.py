@@ -5,7 +5,7 @@ A comprehensive tool for generating Leveraged Buyout (LBO) financial models.
 """
 
 __version__ = "1.0.0"
-__author__ = "LBO Model Generator Team"
+__author__ = "Sage Hart"
 
 from .lbo_model_generator import LBOModel, LBOAssumptions, LBODebtStructure, create_lbo_from_inputs
 
