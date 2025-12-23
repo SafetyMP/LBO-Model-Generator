@@ -170,5 +170,5 @@ print(f"IRR: {returns['irr']:.2f}%")
 
 ## License
 
-Free to use and modify.
+This project is licensed under the Apache License 2.0. See the [LICENSE](../../LICENSE) file for details.
 
