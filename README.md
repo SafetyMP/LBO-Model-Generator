@@ -5,11 +5,14 @@ A comprehensive Python tool for generating professional Leveraged Buyout (LBO) f
 ## Features
 
 - **Complete LBO Modeling**: Generate Income Statement, Balance Sheet, Cash Flow Statement, Debt Schedule, and Returns Analysis
+- **Streamlit Web Dashboard**: Interactive web interface for LBO modeling with real-time validation, sensitivity analysis, and enhanced visualizations
 - **Excel Export**: Professional Excel output with interactive formulas and multiple sheets
 - **AI Integration**: 10 AI-powered features including validation, scenario analysis, benchmarking, and natural language queries
 - **Interactive Models**: Excel models with formulas that recalculate when inputs change
 - **Scenario Analysis**: High/Base/Low case scenarios with sensitivity analysis
 - **Market Benchmarking**: Compare your model against industry standards
+- **Multiple Debt Instruments**: Support for Senior + Subordinated debt structures
+- **PDF Export**: Executive summary reports with key metrics
 
 ## Quick Start
 
@@ -41,7 +44,24 @@ This tool allows you to:
 
 See [Interactive Test Guide](docs/guides/INTERACTIVE_TEST_GUIDE.md) for detailed instructions.
 
-### Basic Usage
+### Streamlit Dashboard (Recommended)
+
+```bash
+# Launch interactive web dashboard
+streamlit run app.py
+```
+
+The dashboard provides:
+- Interactive assumption configuration
+- Real-time validation and feedback
+- Sensitivity analysis and scenario comparison
+- Enhanced visualizations (equity waterfall, returns attribution, tornado charts)
+- Excel and PDF export
+- AI-powered analysis (with API key)
+
+See [Streamlit Dashboard Guide](docs/guides/STREAMLIT_DASHBOARD.md) for detailed instructions.
+
+### CLI Usage
 
 ```bash
 # Generate a template
@@ -268,13 +288,13 @@ The codebase consists of **18 source modules** (~8,400 lines) organized into fun
 - **Logging**: Structured logging with configurable levels
 
 **PEP-8 Compliance Details:**
-- Total violations: 62 (down from 1,422)
-- Critical issues: 1 (duplicate import)
-- Style errors: 22 (mostly line length)
-- Unused imports: 36 (non-breaking, cleanup recommended)
-- Whitespace: 2 (minimal)
+- Total violations: 53 (down from 369)
+- Critical issues: 0 (all fixed)
+- Style issues: 0 (all fixed)
+- Intentional exceptions: 53 (documented, mostly E402 for Streamlit)
+- Compliance rate: ~97%
 
-See [PEP-8 Compliance Report](docs/development/PEP8_COMPLIANCE_REPORT.md) for detailed analysis.
+See [PEP-8 Compliance Report 2025](docs/development/PEP8_COMPLIANCE_REPORT_2025.md) for detailed analysis.
 
 ### Data Flow
 
@@ -300,6 +320,7 @@ Excel File (.xlsx)
 lbo_model_generator/
 ├── src/                          # Source code modules (~8,400 lines)
 │   ├── lbo_model_generator.py    # Core LBO model logic (~2,468 lines)
+│   ├── lbo_engine.py             # Streamlit engine wrapper (~335 lines)
 │   ├── lbo_input_generator.py    # CLI and input handling (~644 lines)
 │   ├── lbo_ai_recommender.py     # AI recommendations (~200 lines)
 │   ├── lbo_ai_validator.py       # AI validation and analysis (~882 lines)
@@ -307,34 +328,55 @@ lbo_model_generator/
 │   ├── lbo_consistency_helpers.py # Consistency validation (~200 lines)
 │   ├── lbo_validation_enhanced.py # Enhanced validation (~400 lines)
 │   ├── lbo_industry_excel.py      # Industry-standard Excel export (~1,754 lines)
-│   ├── lbo_industry_standards.py  # Industry-standard formatting (~172 lines)
+│   ├── lbo_industry_standards.py # Industry-standard formatting (~172 lines)
 │   ├── lbo_excel_template.py     # Legacy Excel template (~400 lines)
 │   ├── lbo_excel_helpers.py      # Excel formatting helpers (~200 lines)
-│   ├── lbo_chart_improvements.py  # Chart enhancements (~300 lines)
-│   ├── lbo_constants.py           # Centralized constants (~100 lines)
+│   ├── lbo_chart_improvements.py # Chart enhancements (~300 lines)
+│   ├── lbo_constants.py          # Centralized constants (~100 lines)
 │   ├── lbo_exceptions.py         # Custom exceptions (~100 lines)
 │   ├── lbo_validation.py          # Input validation (~200 lines)
 │   └── lbo_logging.py             # Logging configuration (~141 lines)
-├── tests/                        # Test suite
+├── streamlit_modules/            # Streamlit dashboard modules
+│   ├── app_config.py             # Configuration and session state
+│   ├── app_utils.py               # Utility functions and caching
+│   ├── app_visualizations.py     # Visualization functions
+│   ├── app_analysis.py            # Advanced analysis functions
+│   ├── app_export.py              # Export functionality
+│   ├── app_performance.py        # Performance optimization
+│   └── app_ui.py                 # UI helper functions
+├── pages/                         # Streamlit pages
+│   ├── 1_📊_Dashboard.py          # Main dashboard
+│   ├── 2_⚙️_Assumptions.py        # Input configuration
+│   ├── 3_📈_Analysis.py          # Analysis and visualizations
+│   └── 4_ℹ️_Help.py              # Help and documentation
+├── tests/                         # Test suite
 │   ├── test_lbo_generator.py     # Core functionality tests
 │   ├── test_ai_mock.py           # Mock AI tests
 │   ├── test_ai_with_key.py       # Real AI tests
-│   ├── test_debt_validation.py  # Debt validation tests
+│   ├── test_debt_validation.py   # Debt validation tests
+│   ├── test_streamlit_modules.py # Streamlit module tests
 │   └── test_improvements.py      # Improvement tests
 ├── docs/                          # Documentation
 │   ├── README_LBO_GENERATOR.md   # Main usage guide
-│   ├── README_AI_INTEGRATION.md  # AI integration
+│   ├── README_AI_INTEGRATION.md   # AI integration
 │   ├── README_AI_VALIDATOR.md    # AI validator
 │   ├── AI_FEATURES_SUMMARY.md    # AI features
 │   ├── guides/                    # User guides
+│   │   ├── STREAMLIT_DASHBOARD.md # Streamlit dashboard guide
+│   │   └── ...
 │   └── reference/                 # Reference docs
 ├── examples/                      # Example files
 │   ├── lbo_input_template.json
 │   └── ai_recommendations_output.json
+├── .streamlit/                    # Streamlit configuration
+│   ├── config.toml                # UI configuration
+│   └── secrets.toml               # API keys (gitignored)
 ├── output/                        # Generated files (gitignored)
 ├── requirements.txt               # Dependencies
-├── run.py                         # Main entry point
+├── app.py                         # Streamlit entry point
+├── run.py                         # CLI entry point
 ├── interactive_test.py            # Interactive test script
+├── compare_streamlit_test.py      # Test case comparison script
 └── README.md                      # This file
 ```
 
@@ -349,12 +391,14 @@ See [Complete Project Structure](docs/reference/PROJECT_STRUCTURE_COMPLETE.md) a
 - **[AI Features Summary](docs/AI_FEATURES_SUMMARY.md)** - Complete AI features list
 
 ### User Guides
+- **[Streamlit Dashboard Guide](docs/guides/STREAMLIT_DASHBOARD.md)** - Complete Streamlit dashboard documentation ⭐ NEW
 - **[Interactive Test Guide](docs/guides/INTERACTIVE_TEST_GUIDE.md)** - Interactive testing instructions
 - **[Quick Start Guide](docs/guides/QUICK_START.md)** - Quick start instructions
 - **[User Instructions](docs/guides/USER_INSTRUCTIONS.md)** - Detailed user instructions
 - **[API Key Setup](docs/guides/API_KEY_SETUP.md)** - OpenAI API key configuration
 
 ### Reference Documentation
+- **[Project Organization](docs/reference/PROJECT_ORGANIZATION.md)** - Codebase organization and Python best practices ⭐ NEW
 - **[Industry Standards Implementation](docs/reference/INDUSTRY_STANDARDS_IMPLEMENTATION.md)** - Industry-standard Excel formatting
 - **[Complete Project Structure](docs/reference/PROJECT_STRUCTURE_COMPLETE.md)** - Comprehensive project organization
 - **[Module Organization](docs/reference/MODULE_ORGANIZATION.md)** - Module structure and dependencies
@@ -382,10 +426,18 @@ See [AI Features Summary](docs/AI_FEATURES_SUMMARY.md) for details.
 ## Requirements
 
 - Python 3.8+
-- pandas
-- numpy
-- openpyxl
-- openai (optional, for AI features)
+- **Core Dependencies**:
+  - pandas>=2.0.0
+  - numpy>=1.24.0
+  - openpyxl>=3.1.0
+- **Web Dashboard** (optional):
+  - streamlit>=1.28.0
+  - plotly>=5.17.0
+  - reportlab>=4.0.0 (for PDF export)
+- **AI Features** (optional):
+  - openai>=1.0.0
+
+See [requirements.txt](requirements.txt) for complete list.
 
 ## License
 

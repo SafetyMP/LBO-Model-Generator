@@ -8,6 +8,18 @@ from openpyxl.utils import get_column_letter
 from typing import Dict, Optional, Any
 import openpyxl
 
+# Handle imports for LBOConstants
+try:
+    from .lbo_constants import LBOConstants
+except ImportError:
+    try:
+        from lbo_constants import LBOConstants
+    except ImportError:
+        # Fallback: define a minimal LBOConstants if import fails
+        class LBOConstants:
+            DECIMAL_PLACES = 2
+            EXCEL_THOUSANDS_DIVISOR = 1000
+
 
 class IndustryStandardTemplate:
     """Industry-standard Excel template following investment banking best practices."""
@@ -85,8 +97,6 @@ class IndustryStandardTemplate:
         """Format cell as input (light red background)."""
         if value is not None:
             # Round to 2 decimal places
-            from lbo_constants import LBOConstants
-
             if isinstance(value, (int, float)):
                 cell.value = round(value, LBOConstants.DECIMAL_PLACES)
             else:
@@ -109,8 +119,6 @@ class IndustryStandardTemplate:
             cell.value = formula
         elif value is not None:
             # Round to 2 decimal places
-            from lbo_constants import LBOConstants
-
             if isinstance(value, (int, float)):
                 cell.value = round(value, LBOConstants.DECIMAL_PLACES)
             else:
@@ -131,8 +139,6 @@ class IndustryStandardTemplate:
         """Format cell as output (light yellow background)."""
         if value is not None:
             # Round to 2 decimal places
-            from lbo_constants import LBOConstants
-
             if isinstance(value, (int, float)):
                 cell.value = round(value, LBOConstants.DECIMAL_PLACES)
             else:
@@ -176,8 +182,6 @@ class IndustryStandardTemplate:
         """Format total row (bold, double underline)."""
         if value is not None:
             # Round to 2 decimal places
-            from lbo_constants import LBOConstants
-
             if isinstance(value, (int, float)):
                 cell.value = round(value, LBOConstants.DECIMAL_PLACES)
             else:

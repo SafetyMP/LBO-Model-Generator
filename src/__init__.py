@@ -8,6 +8,7 @@ __version__ = "1.0.0"
 __author__ = "Sage Hart"
 
 from .lbo_model_generator import LBOModel, LBOAssumptions, LBODebtStructure, create_lbo_from_inputs
+from .lbo_engine import calculate_lbo
 
 from .lbo_ai_recommender import LBOModelAIRecommender, recommend_lbo_parameters
 
@@ -81,6 +82,8 @@ __all__ = [
     "LBOAssumptions",
     "LBODebtStructure",
     "create_lbo_from_inputs",
+    # Streamlit engine
+    "calculate_lbo",
     # AI classes
     "LBOModelAIRecommender",
     "recommend_lbo_parameters",

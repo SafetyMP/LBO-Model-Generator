@@ -192,7 +192,7 @@ def _collect_revenue_assumptions(config: Dict) -> None:
         ) or growth_str.replace("%", "").replace(" ", "")
     else:
         growth_input = (
-            input(f"Revenue growth rate per year (% - same for all years or comma-separated): ")
+            input("Revenue growth rate per year (% - same for all years or comma-separated): ")
             or "5"
         )
 

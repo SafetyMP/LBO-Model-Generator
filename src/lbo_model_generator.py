@@ -879,6 +879,70 @@ class LBOModel:
                 + self.balance_sheet.loc["Intangible Assets (Financing Fees)", year]
             )
 
+    def _calculate_total_debt(self, year: int) -> float:
+        """Calculate total debt for a given year by summing ending balances of all debt instruments.
+
+        Args:
+            year: Year number (1-indexed)
+
+        Returns:
+            Total debt amount
+        """
+        year_idx = year - 1
+        total_debt = 0.0
+        for debt in self.assumptions.debt_instruments:
+            if debt.name in self.debt_schedule:
+                if year_idx < len(self.debt_schedule[debt.name]["ending_balance"]):
+                    total_debt += self.debt_schedule[debt.name]["ending_balance"][year_idx]
+        return total_debt
+
+    def _calculate_debt_interest(self, year: int) -> float:
+        """Calculate total interest expense for a given year by summing interest paid from all debt instruments.
+
+        Args:
+            year: Year number (1-indexed)
+
+        Returns:
+            Total interest expense
+        """
+        year_idx = year - 1
+        total_interest = 0.0
+        for debt in self.assumptions.debt_instruments:
+            if debt.name in self.debt_schedule:
+                if year_idx < len(self.debt_schedule[debt.name]["interest_paid"]):
+                    total_interest += self.debt_schedule[debt.name]["interest_paid"][year_idx]
+        return total_interest
+
+    def _update_income_statement_from_ebit(self, year: int) -> None:
+        """Update income statement items calculated from EBIT: Pretax Income, Income Tax, Net Income.
+
+        Calculation flow:
+        1. Pretax Income = EBIT - Interest Expense
+        2. Income Tax = Pretax Income × Tax Rate
+        3. Net Income = Pretax Income - Income Tax
+
+        Args:
+            year: Year number (1-indexed)
+        """
+        ebit = self.income_statement.loc["EBIT", year]
+        interest_expense = self.income_statement.loc["Interest Expense", year]
+
+        # Pretax Income = EBIT - Interest Expense
+        pretax_income = self._round_value(ebit - interest_expense)
+        self.income_statement.loc["Pretax Income", year] = pretax_income
+
+        # Income Tax = Pretax Income × Tax Rate
+        income_tax = self._round_value(pretax_income * self.assumptions.tax_rate)
+        self.income_statement.loc["Income Tax Expense", year] = income_tax
+
+        # Tax Rate (for display)
+        tax_rate_display = self.assumptions.tax_rate if pretax_income > 0 else 0.0
+        self.income_statement.loc["Tax Rate", year] = self._round_value(tax_rate_display)
+
+        # Net Income = Pretax Income - Income Tax
+        net_income = self._round_value(pretax_income - income_tax)
+        self.income_statement.loc["Net Income", year] = net_income
+
     def _calculate_operating_activities(self, year: int) -> float:
         """Calculate operating activities cash flow."""
         net_income = self.income_statement.loc["Net Income", year]
@@ -1585,6 +1649,85 @@ class LBOModel:
             )
 
         return errors
+
+    def _validate_debt_balance_equation(
+        self,
+        debt_name: str,
+        year: int,
+        year_idx: int,
+        tolerance: float,
+    ) -> Optional[str]:
+        """Validate debt balance equation: Beginning Balance - Principal Paid = Ending Balance.
+
+        Args:
+            debt_name: Name of the debt instrument
+            year: Year number (1-indexed)
+            year_idx: Year index (0-indexed)
+            tolerance: Tolerance for rounding differences
+
+        Returns:
+            Error message if validation fails, None otherwise
+        """
+        if debt_name not in self.debt_schedule:
+            return None
+
+        schedule = self.debt_schedule[debt_name]
+        if year_idx >= len(schedule["beginning_balance"]):
+            return None
+
+        beg_bal = schedule["beginning_balance"][year_idx]
+        principal = schedule["principal_paid"][year_idx]
+        end_bal = schedule["ending_balance"][year_idx]
+
+        calc_end = beg_bal - principal
+        diff = abs(calc_end - end_bal)
+
+        if diff > tolerance:
+            return (
+                f"{debt_name} Year {year}: Balance equation error. "
+                f"Beginning (${beg_bal:,.2f}) - Principal (${principal:,.2f}) = "
+                f"${calc_end:,.2f} ≠ Ending (${end_bal:,.2f}), Diff: ${diff:,.2f}"
+            )
+        return None
+
+    def _validate_debt_continuity(
+        self,
+        debt_name: str,
+        year: int,
+        year_idx: int,
+        tolerance: float,
+    ) -> Optional[str]:
+        """Validate debt continuity: Year N Ending Balance = Year N+1 Beginning Balance.
+
+        Args:
+            debt_name: Name of the debt instrument
+            year: Year number (1-indexed)
+            year_idx: Year index (0-indexed)
+            tolerance: Tolerance for rounding differences
+
+        Returns:
+            Error message if validation fails, None otherwise
+        """
+        if debt_name not in self.debt_schedule:
+            return None
+
+        schedule = self.debt_schedule[debt_name]
+        if year_idx >= len(schedule["ending_balance"]):
+            return None
+
+        # Check continuity with next year
+        if year_idx + 1 < len(schedule["beginning_balance"]):
+            end_bal = schedule["ending_balance"][year_idx]
+            next_beg_bal = schedule["beginning_balance"][year_idx + 1]
+            diff = abs(end_bal - next_beg_bal)
+
+            if diff > tolerance:
+                return (
+                    f"{debt_name} Year {year}→{year+1}: Continuity error. "
+                    f"Year {year} Ending (${end_bal:,.2f}) ≠ Year {year+1} Beginning "
+                    f"(${next_beg_bal:,.2f}), Diff: ${diff:,.2f}"
+                )
+        return None
 
     def _validate_amortizing_schedule(
         self,
@@ -2343,11 +2486,11 @@ class LBOModel:
             return "AI query feature not available. Install openai package and set API key."
         """
         Benchmark model against market using AI.
-        
+
         Args:
             industry: Industry sector
             api_key: OpenAI API key (optional)
-            
+
         Returns:
             Dictionary with benchmarking results
         """

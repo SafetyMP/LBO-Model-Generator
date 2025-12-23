@@ -6,7 +6,6 @@ appropriate LBO model parameters.
 """
 
 import json
-import os
 import logging
 from typing import Dict, Optional
 import openai
