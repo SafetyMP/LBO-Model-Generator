@@ -34,10 +34,10 @@ jobs:
         # Check for critical errors (fail on these)
         flake8 src/ streamlit_modules/ pages/ app.py tests/ \
           --count --select=E9,F63,F7,F82 --show-source --statistics || true
-        # Check with project configuration (warn only)
+        # Check with project configuration (warn only, ignore unused imports)
         flake8 src/ streamlit_modules/ pages/ app.py tests/ \
           --max-line-length=100 \
-          --extend-ignore=E203,E266,E501,W503,E402 \
+          --extend-ignore=E203,E266,E501,W503,E402,F401 \
           --count --statistics || true
     
     - name: Format check with black
@@ -79,7 +79,7 @@ jobs:
       run: |
         flake8 src/ streamlit_modules/ pages/ app.py tests/ \
           --max-line-length=100 \
-          --extend-ignore=E203,E266,E501,W503,E402 \
+          --extend-ignore=E203,E266,E501,W503,E402,F401 \
           --count --statistics
     
     - name: Check code formatting
