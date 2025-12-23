@@ -423,7 +423,7 @@ If you use this tool in your research or work, please consider citing:
 @software{lbo_model_generator,
   title = {LBO Model Generator},
   author = {Sage Hart},
-  year = {2024},
+  year = {2025},
   license = {Apache-2.0},
   url = {https://github.com/SafetyMP/LBO-Model-Generator}
 }
