@@ -16,12 +16,32 @@ if TYPE_CHECKING:
 
 # Handle both package and direct imports
 try:
-    from .lbo_model_generator import create_lbo_from_inputs, LBOModel, LBOAssumptions, LBODebtStructure
-    from .lbo_exceptions import LBOError, LBOAIServiceError, LBOValidationError, LBOConfigurationError
+    from .lbo_model_generator import (
+        create_lbo_from_inputs,
+        LBOModel,
+        LBOAssumptions,
+        LBODebtStructure,
+    )
+    from .lbo_exceptions import (
+        LBOError,
+        LBOAIServiceError,
+        LBOValidationError,
+        LBOConfigurationError,
+    )
     from .lbo_validation import validate_json_input, validate_output_path, sanitize_filename
 except ImportError:
-    from lbo_model_generator import create_lbo_from_inputs, LBOModel, LBOAssumptions, LBODebtStructure
-    from lbo_exceptions import LBOError, LBOAIServiceError, LBOValidationError, LBOConfigurationError
+    from lbo_model_generator import (
+        create_lbo_from_inputs,
+        LBOModel,
+        LBOAssumptions,
+        LBODebtStructure,
+    )
+    from lbo_exceptions import (
+        LBOError,
+        LBOAIServiceError,
+        LBOValidationError,
+        LBOConfigurationError,
+    )
     from lbo_validation import validate_json_input, validate_output_path, sanitize_filename
 
 # Configure logging
@@ -117,7 +137,10 @@ def _collect_ai_recommendations(config: Dict) -> None:
     try:
         recommender = LBOModelAIRecommender()
         ai_recommendations = recommender.recommend_parameters(
-            business_description, current_revenue=current_revenue, current_ebitda=current_ebitda, industry=industry
+            business_description,
+            current_revenue=current_revenue,
+            current_ebitda=current_ebitda,
+            industry=industry,
         )
 
         print("\n" + recommender.explain_recommendations(ai_recommendations))
@@ -138,10 +161,14 @@ def _collect_transaction_details(config: Dict) -> None:
     print("TRANSACTION DETAILS:")
     print("-" * 80)
     default_ebitda = config.get("entry_ebitda") or "10000"
-    config["entry_ebitda"] = float(input(f"Entry EBITDA ($) [{default_ebitda}]: ") or default_ebitda)
+    config["entry_ebitda"] = float(
+        input(f"Entry EBITDA ($) [{default_ebitda}]: ") or default_ebitda
+    )
 
     default_multiple = config.get("entry_multiple") or "6.5"
-    config["entry_multiple"] = float(input(f"Entry Multiple (x EBITDA) [{default_multiple}]: ") or default_multiple)
+    config["entry_multiple"] = float(
+        input(f"Entry Multiple (x EBITDA) [{default_multiple}]: ") or default_multiple
+    )
 
     default_debt = config.get("existing_debt") or "0"
     config["existing_debt"] = float(input(f"Existing Debt ($) [{default_debt}]: ") or default_debt)
@@ -164,7 +191,10 @@ def _collect_revenue_assumptions(config: Dict) -> None:
             f"Revenue growth rate per year (% - comma-separated) [{growth_str}]: "
         ) or growth_str.replace("%", "").replace(" ", "")
     else:
-        growth_input = input(f"Revenue growth rate per year (% - same for all years or comma-separated): ") or "5"
+        growth_input = (
+            input(f"Revenue growth rate per year (% - same for all years or comma-separated): ")
+            or "5"
+        )
 
     if "," in growth_input:
         growth_rates = [float(x.strip()) / 100 for x in growth_input.split(",")]
@@ -174,7 +204,8 @@ def _collect_revenue_assumptions(config: Dict) -> None:
 
     default_starting_rev = config.get("starting_revenue") or "0"
     config["starting_revenue"] = float(
-        input(f"Starting Revenue ($, 0 to estimate) [{default_starting_rev}]: ") or default_starting_rev
+        input(f"Starting Revenue ($, 0 to estimate) [{default_starting_rev}]: ")
+        or default_starting_rev
     )
     print()
 
@@ -245,7 +276,9 @@ def _collect_operating_assumptions(config: Dict) -> None:
     print("OPERATING ASSUMPTIONS:")
     print("-" * 80)
     default_cogs = (config.get("cogs_pct_of_revenue") or 0.70) * 100
-    config["cogs_pct_of_revenue"] = float(input(f"COGS as % of Revenue [{default_cogs:.1f}%]: ") or default_cogs) / 100
+    config["cogs_pct_of_revenue"] = (
+        float(input(f"COGS as % of Revenue [{default_cogs:.1f}%]: ") or default_cogs) / 100
+    )
 
     default_sganda = (config.get("sganda_pct_of_revenue") or 0.15) * 100
     config["sganda_pct_of_revenue"] = (
@@ -267,7 +300,9 @@ def _collect_working_capital(config: Dict) -> None:
     print("WORKING CAPITAL ASSUMPTIONS:")
     print("-" * 80)
     default_dso = config.get("days_sales_outstanding") or 45
-    config["days_sales_outstanding"] = float(input(f"Days Sales Outstanding [{default_dso:.0f}]: ") or default_dso)
+    config["days_sales_outstanding"] = float(
+        input(f"Days Sales Outstanding [{default_dso:.0f}]: ") or default_dso
+    )
 
     default_dio = config.get("days_inventory_outstanding") or 30
     config["days_inventory_outstanding"] = float(
@@ -275,7 +310,9 @@ def _collect_working_capital(config: Dict) -> None:
     )
 
     default_dpo = config.get("days_payable_outstanding") or 30
-    config["days_payable_outstanding"] = float(input(f"Days Payable Outstanding [{default_dpo:.0f}]: ") or default_dpo)
+    config["days_payable_outstanding"] = float(
+        input(f"Days Payable Outstanding [{default_dpo:.0f}]: ") or default_dpo
+    )
     print()
 
 
@@ -287,7 +324,9 @@ def _collect_exit_assumptions(config: Dict) -> None:
     config["exit_year"] = int(input(f"Exit Year [{default_exit_year}]: ") or default_exit_year)
 
     default_exit_mult = config.get("exit_multiple") or 7.5
-    config["exit_multiple"] = float(input(f"Exit Multiple (x EBITDA) [{default_exit_mult}]: ") or default_exit_mult)
+    config["exit_multiple"] = float(
+        input(f"Exit Multiple (x EBITDA) [{default_exit_mult}]: ") or default_exit_mult
+    )
     print()
 
 
@@ -295,9 +334,15 @@ def _collect_optional_assumptions(config: Dict) -> None:
     """Collect optional assumptions."""
     print("OPTIONAL ASSUMPTIONS (press Enter for defaults):")
     print("-" * 80)
-    config["transaction_expenses_pct"] = float(input("Transaction Expenses as % of EV (default 3%): ") or "3") / 100
-    config["financing_fees_pct"] = float(input("Financing Fees as % of Total Debt (default 2%): ") or "2") / 100
-    config["depreciation_pct_of_ppe"] = float(input("Depreciation as % of PP&E (default 10%): ") or "10") / 100
+    config["transaction_expenses_pct"] = (
+        float(input("Transaction Expenses as % of EV (default 3%): ") or "3") / 100
+    )
+    config["financing_fees_pct"] = (
+        float(input("Financing Fees as % of Total Debt (default 2%): ") or "2") / 100
+    )
+    config["depreciation_pct_of_ppe"] = (
+        float(input("Depreciation as % of PP&E (default 10%): ") or "10") / 100
+    )
     config["min_cash_balance"] = float(input("Minimum Cash Balance ($, default 0): ") or "0")
 
 
@@ -369,20 +414,39 @@ def _parse_arguments() -> "argparse.Namespace":
 
     parser = _argparse.ArgumentParser(description="Generate LBO Model")
     parser.add_argument("--input", "-i", type=str, help="Input JSON file")
-    parser.add_argument("--output", "-o", type=str, default="lbo_model.xlsx", help="Output Excel file")
+    parser.add_argument(
+        "--output", "-o", type=str, default="lbo_model.xlsx", help="Output Excel file"
+    )
     parser.add_argument("--template", "-t", action="store_true", help="Generate template JSON file")
     parser.add_argument("--interactive", action="store_true", help="Use interactive input")
     parser.add_argument("--ai", action="store_true", help="Enable AI-powered recommendations")
-    parser.add_argument("--ai-description", type=str, help="Business description for AI recommendations")
+    parser.add_argument(
+        "--ai-description", type=str, help="Business description for AI recommendations"
+    )
     parser.add_argument("--ai-revenue", type=float, help="Current revenue for AI recommendations")
     parser.add_argument("--ai-ebitda", type=float, help="Current EBITDA for AI recommendations")
-    parser.add_argument("--ai-industry", "--industry", type=str, help="Industry for AI recommendations and validation")
-    parser.add_argument("--ai-validate", action="store_true", help="Run AI validation on model assumptions")
-    parser.add_argument("--ai-review", action="store_true", help="Run AI review on generated Excel model")
-    parser.add_argument("--ai-scenarios", action="store_true", help="Generate AI-powered scenario analysis")
-    parser.add_argument("--ai-benchmark", action="store_true", help="Benchmark model against market using AI")
+    parser.add_argument(
+        "--ai-industry",
+        "--industry",
+        type=str,
+        help="Industry for AI recommendations and validation",
+    )
+    parser.add_argument(
+        "--ai-validate", action="store_true", help="Run AI validation on model assumptions"
+    )
+    parser.add_argument(
+        "--ai-review", action="store_true", help="Run AI review on generated Excel model"
+    )
+    parser.add_argument(
+        "--ai-scenarios", action="store_true", help="Generate AI-powered scenario analysis"
+    )
+    parser.add_argument(
+        "--ai-benchmark", action="store_true", help="Benchmark model against market using AI"
+    )
     parser.add_argument("--ai-diagnose", action="store_true", help="Use AI to diagnose errors")
-    parser.add_argument("--api-key", type=str, help="OpenAI API key (or set OPENAI_API_KEY env var)")
+    parser.add_argument(
+        "--api-key", type=str, help="OpenAI API key (or set OPENAI_API_KEY env var)"
+    )
     return parser.parse_args()
 
 
@@ -506,7 +570,9 @@ def _run_ai_benchmark(model: "LBOModel", args) -> None:
         return
 
     print("\n📈 Running AI market benchmarking...")
-    benchmark = model.benchmark_against_market(args.industry, api_key=getattr(args, "api_key", None))
+    benchmark = model.benchmark_against_market(
+        args.industry, api_key=getattr(args, "api_key", None)
+    )
     if benchmark.get("industry_averages"):
         print("Market Benchmarks:")
         for key, value in benchmark.get("industry_averages", {}).items():
@@ -552,7 +618,9 @@ def _handle_error_with_ai_diagnosis(error: Exception, model: Optional["LBOModel"
         print("\n🔍 Running AI error diagnosis...")
 
         if model:
-            diagnosis = model.diagnose_error_ai(str(error), traceback_str, api_key=getattr(args, "api_key", None))
+            diagnosis = model.diagnose_error_ai(
+                str(error), traceback_str, api_key=getattr(args, "api_key", None)
+            )
         else:
             # If model doesn't exist, create a minimal one for diagnosis
             try:

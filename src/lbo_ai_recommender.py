@@ -76,7 +76,10 @@ class LBOModelAIRecommender:
         """Call OpenAI API for recommendations."""
         response = self.client.chat.completions.create(
             model=self.model,
-            messages=[{"role": "system", "content": self._get_system_message()}, {"role": "user", "content": prompt}],
+            messages=[
+                {"role": "system", "content": self._get_system_message()},
+                {"role": "user", "content": prompt},
+            ],
             temperature=0.3,
             response_format={"type": "json_object"},
         )
@@ -115,7 +118,9 @@ class LBOModelAIRecommender:
         Returns:
             Dictionary with recommended parameters matching LBO input format
         """
-        prompt = self._create_recommendation_prompt(business_description, current_revenue, current_ebitda, industry)
+        prompt = self._create_recommendation_prompt(
+            business_description, current_revenue, current_ebitda, industry
+        )
 
         try:
             recommendations = self._call_recommendation_api(prompt)
@@ -258,12 +263,16 @@ Debt Structure:
 """
 
         for debt in recommendations.get("debt_instruments", []):
-            explanation += f"- {debt.get('name', 'Debt')}: {debt.get('ebitda_multiple', 0):.1f}x EBITDA, "
+            explanation += (
+                f"- {debt.get('name', 'Debt')}: {debt.get('ebitda_multiple', 0):.1f}x EBITDA, "
+            )
             explanation += f"{debt.get('interest_rate', 0) * 100:.1f}% interest, "
             explanation += f"{debt.get('amortization_schedule', 'bullet')}\n"
 
         explanation += "\n" + "=" * 60
-        explanation += "\n\nNote: These are AI-generated recommendations based on general industry patterns."
+        explanation += (
+            "\n\nNote: These are AI-generated recommendations based on general industry patterns."
+        )
         explanation += "\nPlease review and adjust based on specific company circumstances and market conditions."
 
         return explanation
@@ -292,7 +301,9 @@ def recommend_lbo_parameters(
         Dictionary with recommended LBO parameters
     """
     recommender = LBOModelAIRecommender(api_key=api_key, model=model)
-    return recommender.recommend_parameters(business_description, current_revenue, current_ebitda, industry)
+    return recommender.recommend_parameters(
+        business_description, current_revenue, current_ebitda, industry
+    )
 
 
 if __name__ == "__main__":

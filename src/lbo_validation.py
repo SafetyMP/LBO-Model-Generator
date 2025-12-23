@@ -118,7 +118,11 @@ def _validate_working_capital_fields(config: Dict) -> List[str]:
             value = config[field]
             if not isinstance(value, (int, float)):
                 errors.append(f"{field} must be a number")
-            elif not (LBOConstants.MIN_WORKING_CAPITAL_DAYS <= value <= LBOConstants.MAX_WORKING_CAPITAL_DAYS):
+            elif not (
+                LBOConstants.MIN_WORKING_CAPITAL_DAYS
+                <= value
+                <= LBOConstants.MAX_WORKING_CAPITAL_DAYS
+            ):
                 errors.append(
                     f"{field} must be between {LBOConstants.MIN_WORKING_CAPITAL_DAYS} "
                     f"and {LBOConstants.MAX_WORKING_CAPITAL_DAYS}"
@@ -142,8 +146,13 @@ def _validate_debt_instruments(config: Dict) -> List[str]:
                         errors.append(f"debt_instruments[{i}] missing 'name' field")
                     if "interest_rate" not in debt:
                         errors.append(f"debt_instruments[{i}] missing 'interest_rate' field")
-                    elif not isinstance(debt["interest_rate"], (int, float)) or debt["interest_rate"] < 0:
-                        errors.append(f"debt_instruments[{i}].interest_rate must be a non-negative number")
+                    elif (
+                        not isinstance(debt["interest_rate"], (int, float))
+                        or debt["interest_rate"] < 0
+                    ):
+                        errors.append(
+                            f"debt_instruments[{i}].interest_rate must be a non-negative number"
+                        )
 
     return errors
 
@@ -171,7 +180,9 @@ def validate_json_input(config: Dict) -> Dict:
     errors.extend(_validate_debt_instruments(config))
 
     if errors:
-        raise LBOValidationError("Input validation failed:\n" + "\n".join(f"  - {e}" for e in errors))
+        raise LBOValidationError(
+            "Input validation failed:\n" + "\n".join(f"  - {e}" for e in errors)
+        )
 
     return config
 
@@ -194,13 +205,15 @@ def validate_api_key(api_key: Optional[str] = None) -> str:
 
     if not api_key:
         raise LBOConfigurationError(
-            "OpenAI API key required. Set OPENAI_API_KEY environment variable " "or pass api_key parameter."
+            "OpenAI API key required. Set OPENAI_API_KEY environment variable "
+            "or pass api_key parameter."
         )
 
     # Basic format validation (OpenAI keys start with 'sk-')
     if not api_key.startswith("sk-") or len(api_key) < 20:
         raise LBOConfigurationError(
-            "Invalid API key format. OpenAI API keys should start with 'sk-' " "and be at least 20 characters long."
+            "Invalid API key format. OpenAI API keys should start with 'sk-' "
+            "and be at least 20 characters long."
         )
 
     return api_key

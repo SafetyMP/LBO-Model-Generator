@@ -80,7 +80,11 @@ class LBOModelAIValidator:
     # ==================== HELPER METHODS FOR AI OPERATIONS ====================
 
     def _call_openai_api(
-        self, system_message: str, user_prompt: str, temperature: float = 0.3, response_format: Optional[Dict] = None
+        self,
+        system_message: str,
+        user_prompt: str,
+        temperature: float = 0.3,
+        response_format: Optional[Dict] = None,
     ) -> str:
         """Make OpenAI API call with error handling.
 
@@ -96,7 +100,10 @@ class LBOModelAIValidator:
         Raises:
             openai.OpenAIError: For API errors
         """
-        messages = [{"role": "system", "content": system_message}, {"role": "user", "content": user_prompt}]
+        messages = [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": user_prompt},
+        ]
 
         kwargs = {"model": self.model, "messages": messages, "temperature": temperature}
 
@@ -125,7 +132,9 @@ class LBOModelAIValidator:
             logger.error(f"JSON decode error: {e}", exc_info=True)
             return default
 
-    def _create_error_validation_result(self, error: Exception, error_type: str) -> ValidationResult:
+    def _create_error_validation_result(
+        self, error: Exception, error_type: str
+    ) -> ValidationResult:
         """Create error ValidationResult.
 
         Args:
@@ -144,7 +153,9 @@ class LBOModelAIValidator:
             details={"error": str(error), "error_type": error_type},
         )
 
-    def _create_error_dict_response(self, error: Exception, default_keys: Dict[str, Any]) -> Dict[str, Any]:
+    def _create_error_dict_response(
+        self, error: Exception, default_keys: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Create error dictionary response.
 
         Args:
@@ -161,7 +172,9 @@ class LBOModelAIValidator:
             result["root_cause"] = f"Error: {str(error)}"
         return result
 
-    def _handle_ai_error(self, error: Exception, error_type: str, result_type: str = "validation") -> Any:
+    def _handle_ai_error(
+        self, error: Exception, error_type: str, result_type: str = "validation"
+    ) -> Any:
         """Handle AI errors and return appropriate error response.
 
         Args:
@@ -183,7 +196,9 @@ class LBOModelAIValidator:
 
     # ==================== 1. MODEL VALIDATION AND QUALITY ASSURANCE ====================
 
-    def validate_model_quality(self, assumptions: Dict, industry: Optional[str] = None) -> ValidationResult:
+    def validate_model_quality(
+        self, assumptions: Dict, industry: Optional[str] = None
+    ) -> ValidationResult:
         """
         Validate LBO model assumptions for realism and common errors.
 
@@ -345,14 +360,18 @@ Return JSON:
                 ws = wb["Final"]
                 # Extract key values (simplified extraction)
                 data["sheets"] = wb.sheetnames
-                data["has_sources_uses"] = any("SOURCES" in str(cell.value) for row in ws.iter_rows() for cell in row)
+                data["has_sources_uses"] = any(
+                    "SOURCES" in str(cell.value) for row in ws.iter_rows() for cell in row
+                )
                 data["has_income_statement"] = any(
                     "INCOME STATEMENT" in str(cell.value) for row in ws.iter_rows() for cell in row
                 )
                 data["has_balance_sheet"] = any(
                     "BALANCE SHEET" in str(cell.value) for row in ws.iter_rows() for cell in row
                 )
-                data["has_cash_flow"] = any("CASH FLOW" in str(cell.value) for row in ws.iter_rows() for cell in row)
+                data["has_cash_flow"] = any(
+                    "CASH FLOW" in str(cell.value) for row in ws.iter_rows() for cell in row
+                )
                 data["has_debt_schedule"] = any(
                     "DEBT SCHEDULE" in str(cell.value) for row in ws.iter_rows() for cell in row
                 )
@@ -407,7 +426,8 @@ Return JSON:
 
         try:
             system_message = (
-                "You are a financial analyst expert in scenario analysis and " "sensitivity testing for LBO models."
+                "You are a financial analyst expert in scenario analysis and "
+                "sensitivity testing for LBO models."
             )
             content = self._call_openai_api(
                 system_message, prompt, temperature=0.4, response_format={"type": "json_object"}
@@ -424,12 +444,18 @@ Return JSON:
         except (openai.OpenAIError, json.JSONDecodeError, LBOAIServiceError) as e:
             logger.error(f"Error generating scenarios: {e}", exc_info=True)
             return ScenarioAnalysis(
-                base_case=base_assumptions, high_case={}, low_case={}, key_assumptions=[], sensitivity_matrix={}
+                base_case=base_assumptions,
+                high_case={},
+                low_case={},
+                key_assumptions=[],
+                sensitivity_matrix={},
             )
 
     # ==================== 4. NATURAL LANGUAGE QUERY INTERFACE ====================
 
-    def query_model(self, question: str, model_data: Dict, assumptions: Optional[Dict] = None) -> str:
+    def query_model(
+        self, question: str, model_data: Dict, assumptions: Optional[Dict] = None
+    ) -> str:
         """
         Answer natural language questions about the model.
 
@@ -516,7 +542,8 @@ Return JSON:
 
         try:
             system_message = (
-                "You are a market research analyst with expertise in LBO transaction data " "and industry benchmarks."
+                "You are a market research analyst with expertise in LBO transaction data "
+                "and industry benchmarks."
             )
             content = self._call_openai_api(
                 system_message, prompt, temperature=0.3, response_format={"type": "json_object"}
@@ -532,7 +559,10 @@ Return JSON:
         except Exception as e:
             logger.error(f"Error during benchmarking: {e}", exc_info=True)
             return BenchmarkResult(
-                industry_averages={}, quartiles={}, deviations={}, recommendations=[f"Benchmarking error: {str(e)}"]
+                industry_averages={},
+                quartiles={},
+                deviations={},
+                recommendations=[f"Benchmarking error: {str(e)}"],
             )
 
     # ==================== 6. FORMULA EXPLANATION AND DOCUMENTATION ====================
@@ -765,7 +795,9 @@ Return JSON:
 
     # ==================== 10. REAL-TIME GUIDANCE DURING MODEL BUILDING ====================
 
-    def get_contextual_help(self, current_step: str, user_inputs: Dict, field_name: Optional[str] = None) -> str:
+    def get_contextual_help(
+        self, current_step: str, user_inputs: Dict, field_name: Optional[str] = None
+    ) -> str:
         """
         Provide contextual help during model building.
 
@@ -829,7 +861,10 @@ def validate_lbo_model(
 
 
 def query_lbo_model(
-    question: str, model_data: Dict, assumptions: Optional[Dict] = None, api_key: Optional[str] = None
+    question: str,
+    model_data: Dict,
+    assumptions: Optional[Dict] = None,
+    api_key: Optional[str] = None,
 ) -> str:
     """Convenience function for querying models."""
     validator = LBOModelAIValidator(api_key=api_key)

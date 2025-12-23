@@ -24,7 +24,10 @@ def _get_log_level(log_level: Optional[str] = None) -> str:
 def _get_formatters() -> Dict[str, Any]:
     """Get logging formatters configuration."""
     return {
-        "standard": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s", "datefmt": "%Y-%m-%d %H:%M:%S"},
+        "standard": {
+            "format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
         "detailed": {
             "format": "%(asctime)s [%(levelname)s] %(name)s:%(lineno)d: %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
@@ -34,7 +37,12 @@ def _get_formatters() -> Dict[str, Any]:
 
 def _get_console_handler(log_level: str) -> Dict[str, Any]:
     """Get console handler configuration."""
-    return {"level": log_level, "formatter": "standard", "class": "logging.StreamHandler", "stream": "ext://sys.stdout"}
+    return {
+        "level": log_level,
+        "formatter": "standard",
+        "class": "logging.StreamHandler",
+        "stream": "ext://sys.stdout",
+    }
 
 
 def _get_file_handler(log_level: str, log_file: str) -> Dict[str, Any]:
@@ -51,12 +59,23 @@ def _get_file_handler(log_level: str, log_file: str) -> Dict[str, Any]:
 
 def _get_loggers(handlers: List[str], log_level: str) -> Dict[str, Any]:
     """Get loggers configuration."""
-    logger_names = ["", "lbo_model_generator", "lbo_ai_recommender", "lbo_ai_validator", "lbo_industry_excel"]
+    logger_names = [
+        "",
+        "lbo_model_generator",
+        "lbo_ai_recommender",
+        "lbo_ai_validator",
+        "lbo_industry_excel",
+    ]
 
-    return {name: {"handlers": handlers, "level": log_level, "propagate": False} for name in logger_names}
+    return {
+        name: {"handlers": handlers, "level": log_level, "propagate": False}
+        for name in logger_names
+    }
 
 
-def get_logging_config(log_level: Optional[str] = None, log_file: Optional[str] = None) -> Dict[str, Any]:
+def get_logging_config(
+    log_level: Optional[str] = None, log_file: Optional[str] = None
+) -> Dict[str, Any]:
     """Get logging configuration dictionary.
 
     Args:

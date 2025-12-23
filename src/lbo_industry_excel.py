@@ -81,7 +81,9 @@ class IndustryStandardExcelExporter:
             ("Sensitivity Analysis", IndustryStandardTemplate.SHEET_SENSITIVITY),
         ]
 
-    def _add_navigation_section(self, ws: openpyxl.worksheet.worksheet.Worksheet, start_row: int) -> int:
+    def _add_navigation_section(
+        self, ws: openpyxl.worksheet.worksheet.Worksheet, start_row: int
+    ) -> int:
         """Add navigation section to worksheet."""
         row = self._add_section_header(ws, "NAVIGATION", start_row)
         nav_items = self._get_navigation_items()
@@ -97,7 +99,9 @@ class IndustryStandardExcelExporter:
     def _calculate_cover_metrics(self) -> List[tuple]:
         """Calculate and format cover sheet metrics."""
         returns = self.model.calculate_returns()
-        entry_ebitda_full = self.model.assumptions.entry_ebitda * LBOConstants.EXCEL_THOUSANDS_DIVISOR
+        entry_ebitda_full = (
+            self.model.assumptions.entry_ebitda * LBOConstants.EXCEL_THOUSANDS_DIVISOR
+        )
         enterprise_value_full = self.model.enterprise_value * LBOConstants.EXCEL_THOUSANDS_DIVISOR
         calculated_ev = entry_ebitda_full * self.model.assumptions.entry_multiple
 
@@ -165,7 +169,9 @@ class IndustryStandardExcelExporter:
         # Transaction Summary
         row = self._add_section_header(ws, "TRANSACTION SUMMARY", row)
 
-        entry_ebitda_full = self.model.assumptions.entry_ebitda * LBOConstants.EXCEL_THOUSANDS_DIVISOR
+        entry_ebitda_full = (
+            self.model.assumptions.entry_ebitda * LBOConstants.EXCEL_THOUSANDS_DIVISOR
+        )
         exit_ebitda_full = returns["exit_ebitda"]
 
         calculated_exit_ev = exit_ebitda_full * self.model.assumptions.exit_multiple
@@ -185,7 +191,10 @@ class IndustryStandardExcelExporter:
         transaction = [
             ("Entry EBITDA ($)", f"${entry_ebitda_full:,.0f}"),
             ("Entry Multiple (x)", f"{self.model.assumptions.entry_multiple:.1f}x"),
-            ("Enterprise Value ($)", f"${self.model.enterprise_value * LBOConstants.EXCEL_THOUSANDS_DIVISOR:,.0f}"),
+            (
+                "Enterprise Value ($)",
+                f"${self.model.enterprise_value * LBOConstants.EXCEL_THOUSANDS_DIVISOR:,.0f}",
+            ),
             ("Exit EBITDA ($)", f"${exit_ebitda_full:,.0f}"),
             ("Exit Multiple (x)", f"{self.model.assumptions.exit_multiple:.1f}x"),
             ("Exit Enterprise Value ($)", f"${returns['exit_ev']:,.0f}"),
@@ -227,7 +236,8 @@ class IndustryStandardExcelExporter:
                 (
                     self.model.transaction_expenses
                     if hasattr(self.model, "transaction_expenses")
-                    else self.model.enterprise_value * self.model.assumptions.transaction_expenses_pct
+                    else self.model.enterprise_value
+                    * self.model.assumptions.transaction_expenses_pct
                 ),
             ),
             (
@@ -272,16 +282,20 @@ class IndustryStandardExcelExporter:
                 is_total = label.startswith("Total")
                 if is_total:
                     IndustryStandardTemplate.format_total_row(
-                        ws.cell(row=row, column=2), value=amount / LBOConstants.EXCEL_THOUSANDS_DIVISOR
+                        ws.cell(row=row, column=2),
+                        value=amount / LBOConstants.EXCEL_THOUSANDS_DIVISOR,
                     )
                 else:
                     IndustryStandardTemplate.format_calculation_cell(
-                        ws.cell(row=row, column=2), value=amount / LBOConstants.EXCEL_THOUSANDS_DIVISOR
+                        ws.cell(row=row, column=2),
+                        value=amount / LBOConstants.EXCEL_THOUSANDS_DIVISOR,
                     )
 
                 if total > 0 and not is_total:
                     pct = amount / total
-                    IndustryStandardTemplate.format_calculation_cell(ws.cell(row=row, column=3), value=pct)
+                    IndustryStandardTemplate.format_calculation_cell(
+                        ws.cell(row=row, column=3), value=pct
+                    )
                     ws.cell(row=row, column=3).number_format = "0.0%"
                 elif is_total:
                     ws.cell(row=row, column=3).value = 1.0
@@ -295,7 +309,11 @@ class IndustryStandardExcelExporter:
         return row
 
     def _add_balance_check(
-        self, ws: openpyxl.worksheet.worksheet.Worksheet, total_sources: float, total_uses: float, row: int
+        self,
+        ws: openpyxl.worksheet.worksheet.Worksheet,
+        total_sources: float,
+        total_uses: float,
+        row: int,
     ) -> None:
         """Add balance check to sources & uses sheet."""
         from openpyxl.styles import Font
@@ -318,7 +336,9 @@ class IndustryStandardExcelExporter:
             ws.cell(row=row, column=2).font = Font(
                 name=IndustryStandardTemplate.FONT_NAME, size=11, bold=True, color="C00000"
             )
-            ws.cell(row=row, column=3).value = f"Sources: ${total_sources:,.0f} | Uses: ${total_uses:,.0f}"
+            ws.cell(row=row, column=3).value = (
+                f"Sources: ${total_sources:,.0f} | Uses: ${total_uses:,.0f}"
+            )
             ws.cell(row=row, column=3).font = IndustryStandardTemplate.FONT_BODY
 
     def _create_sources_uses_sheet(self):
@@ -371,7 +391,10 @@ class IndustryStandardExcelExporter:
                 ("Existing Cash ($'000)", assumptions.get("existing_cash", 0)),
             ],
             "Operating Assumptions": [
-                ("Revenue Growth (Year 1) (%)", f"{assumptions.get('revenue_growth_rate', [0])[0]*100:.1f}%"),
+                (
+                    "Revenue Growth (Year 1) (%)",
+                    f"{assumptions.get('revenue_growth_rate', [0])[0]*100:.1f}%",
+                ),
                 ("COGS % of Revenue", f"{assumptions.get('cogs_pct_of_revenue', 0)*100:.1f}%"),
                 ("SG&A % of Revenue", f"{assumptions.get('sganda_pct_of_revenue', 0)*100:.1f}%"),
                 ("CapEx % of Revenue", f"{assumptions.get('capex_pct_of_revenue', 0)*100:.1f}%"),
@@ -379,7 +402,10 @@ class IndustryStandardExcelExporter:
             ],
             "Working Capital": [
                 ("Days Sales Outstanding (days)", assumptions.get("days_sales_outstanding", 0)),
-                ("Days Inventory Outstanding (days)", assumptions.get("days_inventory_outstanding", 0)),
+                (
+                    "Days Inventory Outstanding (days)",
+                    assumptions.get("days_inventory_outstanding", 0),
+                ),
                 ("Days Payable Outstanding (days)", assumptions.get("days_payable_outstanding", 0)),
             ],
             "Exit Assumptions": [
@@ -451,12 +477,18 @@ class IndustryStandardExcelExporter:
 
                 if abs((ebitda - dep - amort) - ebit) > 0.01:
                     validation_issues.append(
-                        (year, f"EBIT: EBITDA (${ebitda:,.0f}) - D&A (${dep+amort:,.0f}) ≠ EBIT (${ebit:,.0f})")
+                        (
+                            year,
+                            f"EBIT: EBITDA (${ebitda:,.0f}) - D&A (${dep+amort:,.0f}) ≠ EBIT (${ebit:,.0f})",
+                        )
                     )
 
                 if abs((ebit - interest) - pretax) > 0.01:
                     validation_issues.append(
-                        (year, f"Pretax: EBIT (${ebit:,.0f}) - Interest (${interest:,.0f}) ≠ Pretax (${pretax:,.0f})")
+                        (
+                            year,
+                            f"Pretax: EBIT (${ebit:,.0f}) - Interest (${interest:,.0f}) ≠ Pretax (${pretax:,.0f})",
+                        )
                     )
 
                 if abs((pretax - tax) - net_income) > 0.01:
@@ -508,16 +540,23 @@ class IndustryStandardExcelExporter:
             for year_idx, year in enumerate(self.model.years, start=6):
                 try:
                     value = (
-                        self.model.income_statement.loc[key, year] if key in self.model.income_statement.index else 0
+                        self.model.income_statement.loc[key, year]
+                        if key in self.model.income_statement.index
+                        else 0
                     )
                     if pd.notna(value):
                         IndustryStandardTemplate.format_calculation_cell(
-                            ws.cell(row=row, column=year_idx), value=value / LBOConstants.EXCEL_THOUSANDS_DIVISOR
+                            ws.cell(row=row, column=year_idx),
+                            value=value / LBOConstants.EXCEL_THOUSANDS_DIVISOR,
                         )
                     else:
-                        IndustryStandardTemplate.format_calculation_cell(ws.cell(row=row, column=year_idx), value=0)
+                        IndustryStandardTemplate.format_calculation_cell(
+                            ws.cell(row=row, column=year_idx), value=0
+                        )
                 except (KeyError, IndexError, AttributeError):
-                    IndustryStandardTemplate.format_calculation_cell(ws.cell(row=row, column=year_idx), value=0)
+                    IndustryStandardTemplate.format_calculation_cell(
+                        ws.cell(row=row, column=year_idx), value=0
+                    )
             row += 1
 
         ws.cell(row=row - 1, column=1).font = IndustryStandardTemplate.FONT_TOTAL
@@ -535,7 +574,9 @@ class IndustryStandardExcelExporter:
                 return r
         return None
 
-    def _add_cross_sheet_consistency_check(self, ws: openpyxl.worksheet.worksheet.Worksheet, row: int) -> int:
+    def _add_cross_sheet_consistency_check(
+        self, ws: openpyxl.worksheet.worksheet.Worksheet, row: int
+    ) -> int:
         """Add cross-sheet consistency validation section."""
         from openpyxl.styles import Font
 
@@ -543,10 +584,16 @@ class IndustryStandardExcelExporter:
         ws.cell(row=row, column=1).font = IndustryStandardTemplate.FONT_SECTION
         row += 1
 
-        is_net_income_row = self._find_row_in_sheet(IndustryStandardTemplate.SHEET_INCOME_STATEMENT, "Net Income")
+        is_net_income_row = self._find_row_in_sheet(
+            IndustryStandardTemplate.SHEET_INCOME_STATEMENT, "Net Income"
+        )
         bs_cash_row = self._find_row_in_sheet(IndustryStandardTemplate.SHEET_BALANCE_SHEET, "Cash")
-        cf_net_income_row = self._find_row_in_sheet(IndustryStandardTemplate.SHEET_CASH_FLOW, "Net Income")
-        cf_ending_cash_row = self._find_row_in_sheet(IndustryStandardTemplate.SHEET_CASH_FLOW, "Ending Cash")
+        cf_net_income_row = self._find_row_in_sheet(
+            IndustryStandardTemplate.SHEET_CASH_FLOW, "Net Income"
+        )
+        cf_ending_cash_row = self._find_row_in_sheet(
+            IndustryStandardTemplate.SHEET_CASH_FLOW, "Ending Cash"
+        )
 
         consistency_issues = []
 
@@ -576,12 +623,16 @@ class IndustryStandardExcelExporter:
 
         row += 1
         if not consistency_issues:
-            ws.cell(row=row, column=1).value = "✓ All cross-sheet values consistent (differences < $10)"
+            ws.cell(row=row, column=1).value = (
+                "✓ All cross-sheet values consistent (differences < $10)"
+            )
             ws.cell(row=row, column=1).font = Font(
                 name=IndustryStandardTemplate.FONT_NAME, size=11, bold=True, color="006100"
             )
         else:
-            ws.cell(row=row, column=1).value = "⚠ Cross-sheet consistency issues (differences > $10):"
+            ws.cell(row=row, column=1).value = (
+                "⚠ Cross-sheet consistency issues (differences > $10):"
+            )
             ws.cell(row=row, column=1).font = Font(
                 name=IndustryStandardTemplate.FONT_NAME, size=11, bold=True, color="C00000"
             )
@@ -640,7 +691,9 @@ class IndustryStandardExcelExporter:
                 cf_ni = self.model.cash_flow.loc["Net Income", year]
                 diff = abs(is_ni - cf_ni)
                 if diff > 10:
-                    issues.append((year, f"Net Income: IS=${is_ni/1000:,.0f}k, CF=${cf_ni/1000:,.0f}k"))
+                    issues.append(
+                        (year, f"Net Income: IS=${is_ni/1000:,.0f}k, CF=${cf_ni/1000:,.0f}k")
+                    )
             except (KeyError, IndexError):
                 pass
         return issues
@@ -654,7 +707,9 @@ class IndustryStandardExcelExporter:
                 cf_cash = self.model.cash_flow.loc["Ending Cash Balance", year]
                 diff = abs(bs_cash - cf_cash)
                 if diff > 10:
-                    issues.append((year, f"Cash: BS=${bs_cash/1000:,.0f}k, CF=${cf_cash/1000:,.0f}k"))
+                    issues.append(
+                        (year, f"Cash: BS=${bs_cash/1000:,.0f}k, CF=${cf_cash/1000:,.0f}k")
+                    )
             except (KeyError, IndexError):
                 pass
         return issues
@@ -666,7 +721,9 @@ class IndustryStandardExcelExporter:
         row = 1
         merge_range = f'A{row}:{get_column_letter(self.cols["projected_end"])}{row}'
         ws.merge_cells(merge_range)
-        IndustryStandardTemplate.format_header_cell(ws[f"A{row}"], "CASH FLOW STATEMENT", merge_range)
+        IndustryStandardTemplate.format_header_cell(
+            ws[f"A{row}"], "CASH FLOW STATEMENT", merge_range
+        )
 
         row = self._add_standard_column_headers(ws, 3)
 
@@ -708,10 +765,13 @@ class IndustryStandardExcelExporter:
                     )
                     if pd.notna(value):
                         IndustryStandardTemplate.format_calculation_cell(
-                            ws.cell(row=row, column=year_idx), value=value / LBOConstants.EXCEL_THOUSANDS_DIVISOR
+                            ws.cell(row=row, column=year_idx),
+                            value=value / LBOConstants.EXCEL_THOUSANDS_DIVISOR,
                         )
                 except (KeyError, IndexError):
-                    IndustryStandardTemplate.format_calculation_cell(ws.cell(row=row, column=year_idx), value=0)
+                    IndustryStandardTemplate.format_calculation_cell(
+                        ws.cell(row=row, column=year_idx), value=0
+                    )
             row += 1
 
         self._add_cross_sheet_consistency_check(ws, row + 2)
@@ -769,7 +829,12 @@ class IndustryStandardExcelExporter:
         self._add_validation_section(ws, "BALANCE SHEET VALIDATION", validation_issues, row + 2)
 
     def _add_debt_instrument_row(
-        self, ws: openpyxl.worksheet.worksheet.Worksheet, label: str, data_key: str, debt_name: str, row: int
+        self,
+        ws: openpyxl.worksheet.worksheet.Worksheet,
+        label: str,
+        data_key: str,
+        debt_name: str,
+        row: int,
     ) -> int:
         """Add a debt instrument row with year columns."""
         ws.cell(row=row, column=1).value = label
@@ -779,25 +844,35 @@ class IndustryStandardExcelExporter:
         for year_idx, year in enumerate(self.model.years, start=6):
             value = self.model.debt_schedule[debt_name][data_key][year - 1]
             cell = ws.cell(row=row, column=year_idx)
-            IndustryStandardTemplate.format_calculation_cell(cell, value=value / LBOConstants.EXCEL_THOUSANDS_DIVISOR)
+            IndustryStandardTemplate.format_calculation_cell(
+                cell, value=value / LBOConstants.EXCEL_THOUSANDS_DIVISOR
+            )
             cell.border = IndustryStandardTemplate.BORDER_THIN
 
         return row + 1
 
-    def _add_debt_instrument_section(self, ws: openpyxl.worksheet.worksheet.Worksheet, debt, row: int) -> int:
+    def _add_debt_instrument_section(
+        self, ws: openpyxl.worksheet.worksheet.Worksheet, debt, row: int
+    ) -> int:
         """Add complete debt instrument section."""
         ws.cell(row=row, column=1).value = debt.name
         ws.cell(row=row, column=1).font = IndustryStandardTemplate.FONT_SECTION
         row += 1
 
-        row = self._add_debt_instrument_row(ws, "Beginning Balance", "beginning_balance", debt.name, row)
+        row = self._add_debt_instrument_row(
+            ws, "Beginning Balance", "beginning_balance", debt.name, row
+        )
         row = self._add_debt_instrument_row(ws, "Interest Paid", "interest_paid", debt.name, row)
-        row = self._add_debt_instrument_row(ws, "Principal Paid (Scheduled + Sweep)", "principal_paid", debt.name, row)
+        row = self._add_debt_instrument_row(
+            ws, "Principal Paid (Scheduled + Sweep)", "principal_paid", debt.name, row
+        )
         row = self._add_debt_instrument_row(ws, "Ending Balance", "ending_balance", debt.name, row)
 
         return row + 2  # Space between instruments
 
-    def _add_standard_column_headers(self, ws: openpyxl.worksheet.worksheet.Worksheet, row: int) -> int:
+    def _add_standard_column_headers(
+        self, ws: openpyxl.worksheet.worksheet.Worksheet, row: int
+    ) -> int:
         """Add standard column headers for financial statements."""
         headers = [
             "",
@@ -861,7 +936,8 @@ class IndustryStandardExcelExporter:
                 for d in self.model.assumptions.debt_instruments
             )
             IndustryStandardTemplate.format_total_row(
-                ws.cell(row=row, column=year_idx), value=total_debt / LBOConstants.EXCEL_THOUSANDS_DIVISOR
+                ws.cell(row=row, column=year_idx),
+                value=total_debt / LBOConstants.EXCEL_THOUSANDS_DIVISOR,
             )
 
         validation_issues = self._validate_debt_schedule()
@@ -927,12 +1003,19 @@ class IndustryStandardExcelExporter:
             approx_irr = (approx_moic ** (1.0 / base_returns["exit_year"])) - 1
 
             sensitivity_data_rows.append(
-                [exit_mult, f"{self.model.assumptions.entry_multiple:.1f}x", approx_moic, approx_irr]
+                [
+                    exit_mult,
+                    f"{self.model.assumptions.entry_multiple:.1f}x",
+                    approx_moic,
+                    approx_irr,
+                ]
             )
 
         return sensitivity_data_rows
 
-    def _add_sensitivity_table_row(self, ws: openpyxl.worksheet.worksheet.Worksheet, data_row: List, row: int) -> None:
+    def _add_sensitivity_table_row(
+        self, ws: openpyxl.worksheet.worksheet.Worksheet, data_row: List, row: int
+    ) -> None:
         """Add a sensitivity table row with proper formatting."""
         cell = ws.cell(row=row, column=1)
         cell.value = data_row[0]
@@ -995,13 +1078,21 @@ class IndustryStandardExcelExporter:
             "and working capital that may result from different exit multiples."
         )
         ws.cell(row=row, column=1).value = note_text
-        ws.cell(row=row, column=1).font = Font(name=IndustryStandardTemplate.FONT_NAME, size=9, italic=True)
+        ws.cell(row=row, column=1).font = Font(
+            name=IndustryStandardTemplate.FONT_NAME, size=9, italic=True
+        )
         ws.cell(row=row, column=1).alignment = Alignment(wrap_text=True, vertical="top")
         ws.merge_cells(f"A{row}:D{row}")
         ws.row_dimensions[row].height = 40
 
     def _configure_chart_series(
-        self, series, title_ref, marker_symbol="circle", marker_size=8, show_labels=False, label_format=None
+        self,
+        series,
+        title_ref,
+        marker_symbol="circle",
+        marker_size=8,
+        show_labels=False,
+        label_format=None,
     ):
         """Helper method to configure a chart series with common settings.
 
@@ -1025,7 +1116,9 @@ class IndustryStandardExcelExporter:
         if label_format:
             series.dLbls.numFmt = label_format
 
-    def _configure_line_chart_axes(self, chart, y_title, x_title, y_number_format=None, x_number_format=None, y_min=0):
+    def _configure_line_chart_axes(
+        self, chart, y_title, x_title, y_number_format=None, x_number_format=None, y_min=0
+    ):
         """Helper method to configure line chart axes.
 
         Args:
@@ -1045,7 +1138,11 @@ class IndustryStandardExcelExporter:
         chart.y_axis.scaling.min = y_min
 
     def _create_sheet_header(
-        self, ws: openpyxl.worksheet.worksheet.Worksheet, title: str, merge_range: str = "A1:D1", row: int = 1
+        self,
+        ws: openpyxl.worksheet.worksheet.Worksheet,
+        title: str,
+        merge_range: str = "A1:D1",
+        row: int = 1,
     ) -> int:
         """Create a standard sheet header.
 
@@ -1108,7 +1205,9 @@ class IndustryStandardExcelExporter:
                 ws.cell(row=row, column=value_col).value = value
                 ws.cell(row=row, column=value_col).font = IndustryStandardTemplate.FONT_BODY
             else:
-                IndustryStandardTemplate.format_output_cell(ws.cell(row=row, column=value_col), value)
+                IndustryStandardTemplate.format_output_cell(
+                    ws.cell(row=row, column=value_col), value
+                )
             row += 1
         return row
 
@@ -1190,19 +1289,30 @@ class IndustryStandardExcelExporter:
                     if hasattr(data_source, "loc"):
                         value = data_source.loc[key, year]
                     else:
-                        value = data_source[key][year - 1] if data_key else data_source.get(key, {}).get(year - 1, 0)
+                        value = (
+                            data_source[key][year - 1]
+                            if data_key
+                            else data_source.get(key, {}).get(year - 1, 0)
+                        )
 
                     if pd.notna(value) if hasattr(pd, "notna") else value is not None:
                         IndustryStandardTemplate.format_calculation_cell(
-                            ws.cell(row=row, column=year_idx), value=value / LBOConstants.EXCEL_THOUSANDS_DIVISOR
+                            ws.cell(row=row, column=year_idx),
+                            value=value / LBOConstants.EXCEL_THOUSANDS_DIVISOR,
                         )
                 except (KeyError, IndexError):
-                    IndustryStandardTemplate.format_calculation_cell(ws.cell(row=row, column=year_idx), value=0)
+                    IndustryStandardTemplate.format_calculation_cell(
+                        ws.cell(row=row, column=year_idx), value=0
+                    )
             row += 1
         return row
 
     def _add_validation_section(
-        self, ws: openpyxl.worksheet.worksheet.Worksheet, title: str, validation_issues: List, start_row: int
+        self,
+        ws: openpyxl.worksheet.worksheet.Worksheet,
+        title: str,
+        validation_issues: List,
+        start_row: int,
     ) -> int:
         """Add a validation section to worksheet.
 
@@ -1218,7 +1328,9 @@ class IndustryStandardExcelExporter:
         row = self._add_section_header(ws, title, start_row)
 
         if not validation_issues:
-            ws.cell(row=row, column=1).value = f"✓ {title.replace('VALIDATION', '').strip()} valid for all years"
+            ws.cell(row=row, column=1).value = (
+                f"✓ {title.replace('VALIDATION', '').strip()} valid for all years"
+            )
             ws.cell(row=row, column=1).font = Font(
                 name=IndustryStandardTemplate.FONT_NAME, size=11, bold=True, color="006100"
             )
@@ -1269,7 +1381,9 @@ class IndustryStandardExcelExporter:
             chart.legend.position = "b"
             chart.height = 10
             chart.width = 16
-            self._configure_line_chart_axes(chart, "Amount ($'000)", "Year", y_number_format="#,##0", y_min=0)
+            self._configure_line_chart_axes(
+                chart, "Amount ($'000)", "Year", y_number_format="#,##0", y_min=0
+            )
 
             num_years = len(self.model.years)
             if num_years == 0:
@@ -1277,20 +1391,36 @@ class IndustryStandardExcelExporter:
                 return
 
             try:
-                categories = Reference(ws_is, min_col=6, min_row=3, max_col=5 + num_years, max_row=3)
-                revenue_data = Reference(
-                    ws_is, min_col=6, min_row=revenue_row, max_col=5 + num_years, max_row=revenue_row
+                categories = Reference(
+                    ws_is, min_col=6, min_row=3, max_col=5 + num_years, max_row=3
                 )
-                ebitda_data = Reference(ws_is, min_col=6, min_row=ebitda_row, max_col=5 + num_years, max_row=ebitda_row)
+                revenue_data = Reference(
+                    ws_is,
+                    min_col=6,
+                    min_row=revenue_row,
+                    max_col=5 + num_years,
+                    max_row=revenue_row,
+                )
+                ebitda_data = Reference(
+                    ws_is, min_col=6, min_row=ebitda_row, max_col=5 + num_years, max_row=ebitda_row
+                )
 
                 title_col = 11
                 ws_is.cell(row=revenue_row, column=title_col).value = "Revenue"
                 ws_is.cell(row=ebitda_row, column=title_col).value = "EBITDA"
                 revenue_title_ref = Reference(
-                    ws_is, min_col=title_col, min_row=revenue_row, max_col=title_col, max_row=revenue_row
+                    ws_is,
+                    min_col=title_col,
+                    min_row=revenue_row,
+                    max_col=title_col,
+                    max_row=revenue_row,
                 )
                 ebitda_title_ref = Reference(
-                    ws_is, min_col=title_col, min_row=ebitda_row, max_col=title_col, max_row=ebitda_row
+                    ws_is,
+                    min_col=title_col,
+                    min_row=ebitda_row,
+                    max_col=title_col,
+                    max_row=ebitda_row,
                 )
 
                 chart.add_data(revenue_data, titles_from_data=False)
@@ -1298,12 +1428,18 @@ class IndustryStandardExcelExporter:
 
                 if len(chart.series) >= 1:
                     self._configure_chart_series(
-                        chart.series[0], revenue_title_ref, marker_symbol="circle", show_labels=False
+                        chart.series[0],
+                        revenue_title_ref,
+                        marker_symbol="circle",
+                        show_labels=False,
                     )
 
                 if len(chart.series) >= 2:
                     self._configure_chart_series(
-                        chart.series[1], ebitda_title_ref, marker_symbol="diamond", show_labels=False
+                        chart.series[1],
+                        ebitda_title_ref,
+                        marker_symbol="diamond",
+                        show_labels=False,
                     )
 
                 chart.set_categories(categories)
@@ -1311,7 +1447,9 @@ class IndustryStandardExcelExporter:
                 ws_is.add_chart(chart, f"K{chart_start_row}")
                 logger.info("✓ Created Revenue and EBITDA Growth chart")
             except (ValueError, TypeError, AttributeError, IndexError) as e:
-                logger.warning(f"Failed to create Revenue/EBITDA chart - data validation error: {e}")
+                logger.warning(
+                    f"Failed to create Revenue/EBITDA chart - data validation error: {e}"
+                )
             except Exception as e:
                 logger.warning(f"Failed to create Revenue/EBITDA chart: {e}", exc_info=True)
         except Exception as e:
@@ -1386,7 +1524,9 @@ class IndustryStandardExcelExporter:
         except Exception as e:
             logger.warning(f"Failed to create Returns chart: {e}", exc_info=True)
 
-    def _create_capital_structure_charts(self, ws_bs: openpyxl.worksheet.worksheet.Worksheet) -> None:
+    def _create_capital_structure_charts(
+        self, ws_bs: openpyxl.worksheet.worksheet.Worksheet
+    ) -> None:
         """Create Capital Structure Trends charts on Balance Sheet.
 
         Args:
@@ -1419,24 +1559,42 @@ class IndustryStandardExcelExporter:
             chart.legend.position = "b"
             chart.height = 10
             chart.width = 16
-            self._configure_line_chart_axes(chart, "Amount ($'000)", "Year", y_number_format="#,##0", y_min=0)
+            self._configure_line_chart_axes(
+                chart, "Amount ($'000)", "Year", y_number_format="#,##0", y_min=0
+            )
 
             num_years = len(self.model.years)
             try:
-                categories = Reference(ws_bs, min_col=6, min_row=3, max_col=5 + num_years, max_row=3)
-                debt_data = Reference(
-                    ws_bs, min_col=6, min_row=total_debt_row, max_col=5 + num_years, max_row=total_debt_row
+                categories = Reference(
+                    ws_bs, min_col=6, min_row=3, max_col=5 + num_years, max_row=3
                 )
-                equity_data = Reference(ws_bs, min_col=6, min_row=equity_row, max_col=5 + num_years, max_row=equity_row)
+                debt_data = Reference(
+                    ws_bs,
+                    min_col=6,
+                    min_row=total_debt_row,
+                    max_col=5 + num_years,
+                    max_row=total_debt_row,
+                )
+                equity_data = Reference(
+                    ws_bs, min_col=6, min_row=equity_row, max_col=5 + num_years, max_row=equity_row
+                )
 
                 title_col = 11
                 ws_bs.cell(row=total_debt_row, column=title_col).value = "Total Debt"
                 ws_bs.cell(row=equity_row, column=title_col).value = "Shareholders Equity"
                 debt_title_ref = Reference(
-                    ws_bs, min_col=title_col, min_row=total_debt_row, max_col=title_col, max_row=total_debt_row
+                    ws_bs,
+                    min_col=title_col,
+                    min_row=total_debt_row,
+                    max_col=title_col,
+                    max_row=total_debt_row,
                 )
                 equity_title_ref = Reference(
-                    ws_bs, min_col=title_col, min_row=equity_row, max_col=title_col, max_row=equity_row
+                    ws_bs,
+                    min_col=title_col,
+                    min_row=equity_row,
+                    max_col=title_col,
+                    max_row=equity_row,
                 )
 
                 chart.add_data(debt_data, titles_from_data=False)
@@ -1449,7 +1607,10 @@ class IndustryStandardExcelExporter:
 
                 if len(chart.series) >= 2:
                     self._configure_chart_series(
-                        chart.series[1], equity_title_ref, marker_symbol="triangle", show_labels=False
+                        chart.series[1],
+                        equity_title_ref,
+                        marker_symbol="triangle",
+                        show_labels=False,
                     )
 
                 chart.set_categories(categories)
@@ -1457,7 +1618,9 @@ class IndustryStandardExcelExporter:
                 ws_bs.add_chart(chart, f"K{chart_start_row}")
                 logger.info("✓ Created Capital Structure Trends chart")
             except (ValueError, TypeError, AttributeError, IndexError) as e:
-                logger.warning(f"Failed to create Capital Structure chart - data validation error: {e}")
+                logger.warning(
+                    f"Failed to create Capital Structure chart - data validation error: {e}"
+                )
                 chart_start_row = None
 
             # Pie chart for final year capital structure
@@ -1469,7 +1632,9 @@ class IndustryStandardExcelExporter:
 
                     try:
                         debt_num = float(debt_value) if isinstance(debt_value, (int, float)) else 0
-                        equity_num = float(equity_value) if isinstance(equity_value, (int, float)) else 0
+                        equity_num = (
+                            float(equity_value) if isinstance(equity_value, (int, float)) else 0
+                        )
                     except (ValueError, TypeError) as e:
                         logger.warning(f"Failed to extract numeric values for pie chart: {e}")
                         debt_num = 0
@@ -1490,10 +1655,18 @@ class IndustryStandardExcelExporter:
                         ws_bs.cell(row=2, column=chart_start_col + 1).value = equity_num
 
                         data = Reference(
-                            ws_bs, min_col=chart_start_col, min_row=2, max_col=chart_start_col + 1, max_row=2
+                            ws_bs,
+                            min_col=chart_start_col,
+                            min_row=2,
+                            max_col=chart_start_col + 1,
+                            max_row=2,
                         )
                         cat_ref = Reference(
-                            ws_bs, min_col=chart_start_col, min_row=1, max_col=chart_start_col + 1, max_row=1
+                            ws_bs,
+                            min_col=chart_start_col,
+                            min_row=1,
+                            max_col=chart_start_col + 1,
+                            max_row=1,
                         )
 
                         pie_chart.add_data(data, titles_from_data=True)
@@ -1501,12 +1674,16 @@ class IndustryStandardExcelExporter:
                         pie_chart.height = 10
                         pie_chart.width = 12
 
-                        ws_bs.add_chart(pie_chart, f"{get_column_letter(chart_start_col)}{chart_start_row}")
+                        ws_bs.add_chart(
+                            pie_chart, f"{get_column_letter(chart_start_col)}{chart_start_row}"
+                        )
                         logger.info("✓ Created Capital Structure pie chart")
                     else:
                         logger.debug("Skipping pie chart - no valid data")
                 except Exception as e:
-                    logger.warning(f"Failed to create Capital Structure pie chart: {e}", exc_info=True)
+                    logger.warning(
+                        f"Failed to create Capital Structure pie chart: {e}", exc_info=True
+                    )
         except Exception as e:
             logger.warning(f"Failed to create Capital Structure charts: {e}", exc_info=True)
 
@@ -1529,7 +1706,9 @@ class IndustryStandardExcelExporter:
                             continue
         return None
 
-    def _count_sensitivity_data_rows(self, ws_sens: openpyxl.worksheet.worksheet.Worksheet, data_start_row: int) -> int:
+    def _count_sensitivity_data_rows(
+        self, ws_sens: openpyxl.worksheet.worksheet.Worksheet, data_start_row: int
+    ) -> int:
         """Count number of data rows in sensitivity table."""
         data_rows = 0
         for row_idx in range(data_start_row, data_start_row + 10):
@@ -1540,26 +1719,48 @@ class IndustryStandardExcelExporter:
         return data_rows
 
     def _setup_sensitivity_chart_references(
-        self, ws_sens: openpyxl.worksheet.worksheet.Worksheet, data_start_row: int, data_end_row: int, title_col: int
+        self,
+        ws_sens: openpyxl.worksheet.worksheet.Worksheet,
+        data_start_row: int,
+        data_end_row: int,
+        title_col: int,
     ) -> Dict[str, Reference]:
         """Setup chart data references for sensitivity charts."""
         from openpyxl.chart import Reference
 
-        categories = Reference(ws_sens, min_col=1, min_row=data_start_row, max_col=1, max_row=data_end_row)
-        moic_data = Reference(ws_sens, min_col=3, min_row=data_start_row, max_col=3, max_row=data_end_row)
-        irr_data = Reference(ws_sens, min_col=4, min_row=data_start_row, max_col=4, max_row=data_end_row)
+        categories = Reference(
+            ws_sens, min_col=1, min_row=data_start_row, max_col=1, max_row=data_end_row
+        )
+        moic_data = Reference(
+            ws_sens, min_col=3, min_row=data_start_row, max_col=3, max_row=data_end_row
+        )
+        irr_data = Reference(
+            ws_sens, min_col=4, min_row=data_start_row, max_col=4, max_row=data_end_row
+        )
 
         ws_sens.cell(row=data_start_row, column=title_col).value = "MOIC"
         moic_title_ref = Reference(
-            ws_sens, min_col=title_col, min_row=data_start_row, max_col=title_col, max_row=data_start_row
+            ws_sens,
+            min_col=title_col,
+            min_row=data_start_row,
+            max_col=title_col,
+            max_row=data_start_row,
         )
         ws_sens.cell(row=data_start_row, column=title_col + 1).value = "IRR"
         irr_title_ref = Reference(
-            ws_sens, min_col=title_col + 1, min_row=data_start_row, max_col=title_col + 1, max_row=data_start_row
+            ws_sens,
+            min_col=title_col + 1,
+            min_row=data_start_row,
+            max_col=title_col + 1,
+            max_row=data_start_row,
         )
         ws_sens.cell(row=data_start_row, column=title_col + 2).value = "IRR (%)"
         irr_combined_title_ref = Reference(
-            ws_sens, min_col=title_col + 2, min_row=data_start_row, max_col=title_col + 2, max_row=data_start_row
+            ws_sens,
+            min_col=title_col + 2,
+            min_row=data_start_row,
+            max_col=title_col + 2,
+            max_row=data_start_row,
         )
 
         return {
@@ -1589,7 +1790,12 @@ class IndustryStandardExcelExporter:
             chart.height = 8
             chart.width = 12
             self._configure_line_chart_axes(
-                chart, "MOIC (x)", "Exit Multiple (x)", y_number_format='0.0"x"', x_number_format='0.0"x"', y_min=0
+                chart,
+                "MOIC (x)",
+                "Exit Multiple (x)",
+                y_number_format='0.0"x"',
+                x_number_format='0.0"x"',
+                y_min=0,
             )
 
             chart.set_categories(categories)
@@ -1598,7 +1804,12 @@ class IndustryStandardExcelExporter:
             if len(chart.series) >= 1:
                 s1 = chart.series[0]
                 self._configure_chart_series(
-                    s1, moic_title_ref, marker_symbol="circle", marker_size=10, show_labels=True, label_format='0.00"x"'
+                    s1,
+                    moic_title_ref,
+                    marker_symbol="circle",
+                    marker_size=10,
+                    show_labels=True,
+                    label_format='0.00"x"',
                 )
                 s1.graphicalProperties.line.width = 25000
 
@@ -1627,7 +1838,12 @@ class IndustryStandardExcelExporter:
             chart.height = 8
             chart.width = 12
             self._configure_line_chart_axes(
-                chart, "IRR (%)", "Exit Multiple (x)", y_number_format="0.0%", x_number_format='0.0"x"', y_min=0
+                chart,
+                "IRR (%)",
+                "Exit Multiple (x)",
+                y_number_format="0.0%",
+                x_number_format='0.0"x"',
+                y_min=0,
             )
 
             chart.set_categories(categories)
@@ -1636,7 +1852,12 @@ class IndustryStandardExcelExporter:
             if len(chart.series) >= 1:
                 s2 = chart.series[0]
                 self._configure_chart_series(
-                    s2, irr_title_ref, marker_symbol="diamond", marker_size=10, show_labels=True, label_format='0.0"%'
+                    s2,
+                    irr_title_ref,
+                    marker_symbol="diamond",
+                    marker_size=10,
+                    show_labels=True,
+                    label_format='0.0"%',
                 )
                 s2.graphicalProperties.line.width = 25000
                 s2.graphicalProperties.line.solidFill = "FF0000"
@@ -1681,17 +1902,23 @@ class IndustryStandardExcelExporter:
             chart.add_data(irr_data, titles_from_data=False)
 
             if len(chart.series) >= 1:
-                self._configure_chart_series(chart.series[0], moic_title_ref, marker_symbol="circle", show_labels=False)
+                self._configure_chart_series(
+                    chart.series[0], moic_title_ref, marker_symbol="circle", show_labels=False
+                )
 
             if len(chart.series) >= 2:
                 s4 = chart.series[1]
-                self._configure_chart_series(s4, irr_combined_title_ref, marker_symbol="diamond", show_labels=False)
+                self._configure_chart_series(
+                    s4, irr_combined_title_ref, marker_symbol="diamond", show_labels=False
+                )
                 s4.graphicalProperties.line.solidFill = "FF0000"
 
             ws_sens.add_chart(chart, "Q3")
             logger.info("✓ Created Combined MOIC/IRR Sensitivity chart")
         except (ValueError, TypeError, AttributeError, IndexError) as e:
-            logger.warning(f"Failed to create Combined Sensitivity chart - data validation error: {e}")
+            logger.warning(
+                f"Failed to create Combined Sensitivity chart - data validation error: {e}"
+            )
         except Exception as e:
             logger.warning(f"Failed to create Combined Sensitivity chart: {e}", exc_info=True)
 
@@ -1717,10 +1944,16 @@ class IndustryStandardExcelExporter:
         title_col = 6
 
         try:
-            refs = self._setup_sensitivity_chart_references(ws_sens, data_start_row, data_end_row, title_col)
+            refs = self._setup_sensitivity_chart_references(
+                ws_sens, data_start_row, data_end_row, title_col
+            )
 
-            self._create_moic_sensitivity_chart(ws_sens, refs["categories"], refs["moic_data"], refs["moic_title_ref"])
-            self._create_irr_sensitivity_chart(ws_sens, refs["categories"], refs["irr_data"], refs["irr_title_ref"])
+            self._create_moic_sensitivity_chart(
+                ws_sens, refs["categories"], refs["moic_data"], refs["moic_title_ref"]
+            )
+            self._create_irr_sensitivity_chart(
+                ws_sens, refs["categories"], refs["irr_data"], refs["irr_title_ref"]
+            )
             self._create_combined_sensitivity_chart(
                 ws_sens,
                 refs["categories"],
@@ -1750,7 +1983,9 @@ class IndustryStandardExcelExporter:
 
         # Chart 1: Revenue and EBITDA Growth (Line Chart on Income Statement)
         if IndustryStandardTemplate.SHEET_INCOME_STATEMENT in self.wb.sheetnames:
-            self._create_revenue_ebitda_chart(self.wb[IndustryStandardTemplate.SHEET_INCOME_STATEMENT])
+            self._create_revenue_ebitda_chart(
+                self.wb[IndustryStandardTemplate.SHEET_INCOME_STATEMENT]
+            )
 
         # Chart 2: Returns Analysis (Bar Chart on Returns sheet)
         if IndustryStandardTemplate.SHEET_RETURNS in self.wb.sheetnames:
@@ -1758,7 +1993,9 @@ class IndustryStandardExcelExporter:
 
         # Chart 3: Balance Sheet - Capital Structure Trends (Line Chart + Pie Chart on Balance Sheet)
         if IndustryStandardTemplate.SHEET_BALANCE_SHEET in self.wb.sheetnames:
-            self._create_capital_structure_charts(self.wb[IndustryStandardTemplate.SHEET_BALANCE_SHEET])
+            self._create_capital_structure_charts(
+                self.wb[IndustryStandardTemplate.SHEET_BALANCE_SHEET]
+            )
 
         # Chart 4: Sensitivity Analysis - MOIC and IRR by Exit Multiple
         if IndustryStandardTemplate.SHEET_SENSITIVITY in self.wb.sheetnames:

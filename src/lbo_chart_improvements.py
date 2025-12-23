@@ -67,7 +67,9 @@ class ChartStructureImprover:
         chart.width = 16
 
     @staticmethod
-    def create_improved_sensitivity_chart(ws, data_range: str, title: str = "Sensitivity Analysis") -> LineChart:
+    def create_improved_sensitivity_chart(
+        ws, data_range: str, title: str = "Sensitivity Analysis"
+    ) -> LineChart:
         """
         Create improved sensitivity analysis chart.
 
@@ -98,7 +100,9 @@ class ChartStructureImprover:
         return chart
 
     @staticmethod
-    def ensure_chart_data_labels(chart, show_values: bool = True, show_percentages: bool = False) -> None:
+    def ensure_chart_data_labels(
+        chart, show_values: bool = True, show_percentages: bool = False
+    ) -> None:
         """
         Ensure data labels are properly configured.
 
@@ -144,7 +148,11 @@ class ChartStructureImprover:
                 # This would need actual data references
                 # Placeholder for implementation
                 created_charts.append(
-                    {"name": "MOIC and IRR Comparison", "type": "BarChart", "location": "Returns Analysis"}
+                    {
+                        "name": "MOIC and IRR Comparison",
+                        "type": "BarChart",
+                        "location": "Returns Analysis",
+                    }
                 )
             except Exception as e:
                 logger.warning(f"Failed to create MOIC/IRR chart: {e}")

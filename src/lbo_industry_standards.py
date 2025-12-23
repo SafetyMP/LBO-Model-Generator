@@ -39,7 +39,9 @@ class IndustryStandardTemplate:
 
     # Fills
     FILL_INPUT = PatternFill(start_color=COLOR_INPUT, end_color=COLOR_INPUT, fill_type="solid")
-    FILL_CALCULATION = PatternFill(start_color=COLOR_CALCULATION, end_color=COLOR_CALCULATION, fill_type="solid")
+    FILL_CALCULATION = PatternFill(
+        start_color=COLOR_CALCULATION, end_color=COLOR_CALCULATION, fill_type="solid"
+    )
     FILL_OUTPUT = PatternFill(start_color=COLOR_OUTPUT, end_color=COLOR_OUTPUT, fill_type="solid")
     FILL_HEADER = PatternFill(start_color=COLOR_HEADER, end_color=COLOR_HEADER, fill_type="solid")
     FILL_TOTAL = PatternFill(start_color=COLOR_TOTAL, end_color=COLOR_TOTAL, fill_type="solid")
@@ -77,7 +79,9 @@ class IndustryStandardTemplate:
     SHEET_SENSITIVITY = "Sensitivity Analysis"
 
     @staticmethod
-    def format_input_cell(cell: openpyxl.cell.cell.Cell, value: Optional[Any] = None) -> openpyxl.cell.cell.Cell:
+    def format_input_cell(
+        cell: openpyxl.cell.cell.Cell, value: Optional[Any] = None
+    ) -> openpyxl.cell.cell.Cell:
         """Format cell as input (light red background)."""
         if value is not None:
             # Round to 2 decimal places
@@ -121,7 +125,9 @@ class IndustryStandardTemplate:
         return cell
 
     @staticmethod
-    def format_output_cell(cell: openpyxl.cell.cell.Cell, value: Optional[Any] = None) -> openpyxl.cell.cell.Cell:
+    def format_output_cell(
+        cell: openpyxl.cell.cell.Cell, value: Optional[Any] = None
+    ) -> openpyxl.cell.cell.Cell:
         """Format cell as output (light yellow background)."""
         if value is not None:
             # Round to 2 decimal places
@@ -164,7 +170,9 @@ class IndustryStandardTemplate:
         return cell
 
     @staticmethod
-    def format_total_row(cell: openpyxl.cell.cell.Cell, value: Optional[Any] = None) -> openpyxl.cell.cell.Cell:
+    def format_total_row(
+        cell: openpyxl.cell.cell.Cell, value: Optional[Any] = None
+    ) -> openpyxl.cell.cell.Cell:
         """Format total row (bold, double underline)."""
         if value is not None:
             # Round to 2 decimal places
@@ -184,7 +192,9 @@ class IndustryStandardTemplate:
         return cell
 
     @staticmethod
-    def format_subtotal_row(cell: openpyxl.cell.cell.Cell, value: Optional[Any] = None) -> openpyxl.cell.cell.Cell:
+    def format_subtotal_row(
+        cell: openpyxl.cell.cell.Cell, value: Optional[Any] = None
+    ) -> openpyxl.cell.cell.Cell:
         """Format subtotal row (italic)."""
         if value is not None:
             cell.value = value

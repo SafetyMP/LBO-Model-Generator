@@ -56,7 +56,9 @@ class LBOModelAuditor:
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
 
         if not self.api_key:
-            raise ValueError("OpenAI API key required. Set OPENAI_API_KEY env var or pass api_key parameter.")
+            raise ValueError(
+                "OpenAI API key required. Set OPENAI_API_KEY env var or pass api_key parameter."
+            )
 
     def audit_model_consistency(self, test_cases: Dict[str, Dict]) -> AuditReport:
         """
@@ -93,7 +95,9 @@ class LBOModelAuditor:
             logger.error(f"Error in consistency audit: {e}")
             raise
 
-    def audit_test_case_alignment(self, case_name: str, config: Dict, target_metrics: Optional[Dict] = None) -> Dict:
+    def audit_test_case_alignment(
+        self, case_name: str, config: Dict, target_metrics: Optional[Dict] = None
+    ) -> Dict:
         """
         Audit a specific test case against target metrics.
 
@@ -230,7 +234,9 @@ Return JSON in this format:
 """
         return prompt
 
-    def _create_test_case_audit_prompt(self, case_name: str, config: Dict, target_metrics: Optional[Dict]) -> str:
+    def _create_test_case_audit_prompt(
+        self, case_name: str, config: Dict, target_metrics: Optional[Dict]
+    ) -> str:
         """Create prompt for test case audit."""
         prompt = f"""Analyze the following LBO model test case for alignment with target metrics and best practices.
 
@@ -348,7 +354,13 @@ Return JSON in this exact format:
             chart_title = self._extract_chart_title(chart)
             series_count = self._get_chart_series_count(chart)
 
-            charts.append({"type": type(chart).__name__, "title": str(chart_title), "series_count": int(series_count)})
+            charts.append(
+                {
+                    "type": type(chart).__name__,
+                    "title": str(chart_title),
+                    "series_count": int(series_count),
+                }
+            )
 
         return charts
 

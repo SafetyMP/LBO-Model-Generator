@@ -66,7 +66,11 @@ class LBOExcelTemplate:
 
     @staticmethod
     def _create_title_header(
-        ws: openpyxl.worksheet.worksheet.Worksheet, title: str, merge_range: str, row: int = 1, font_size: int = 16
+        ws: openpyxl.worksheet.worksheet.Worksheet,
+        title: str,
+        merge_range: str,
+        row: int = 1,
+        font_size: int = 16,
     ) -> None:
         """Create title header with formatting."""
         ws.merge_cells(merge_range)
@@ -78,7 +82,9 @@ class LBOExcelTemplate:
         cell.border = LBOExcelTemplate.BORDER_THICK
 
     @staticmethod
-    def _create_section_header(ws: openpyxl.worksheet.worksheet.Worksheet, text: str, row: int) -> None:
+    def _create_section_header(
+        ws: openpyxl.worksheet.worksheet.Worksheet, text: str, row: int
+    ) -> None:
         """Create section header with formatting."""
         cell = ws.cell(row=row, column=1)
         cell.value = text
@@ -86,7 +92,9 @@ class LBOExcelTemplate:
         cell.fill = LBOExcelTemplate.FILL_HEADER
 
     @staticmethod
-    def _add_label_value_row(ws: openpyxl.worksheet.worksheet.Worksheet, label: str, value: Any, row: int) -> None:
+    def _add_label_value_row(
+        ws: openpyxl.worksheet.worksheet.Worksheet, label: str, value: Any, row: int
+    ) -> None:
         """Add a label-value row."""
         ws.cell(row=row, column=1).value = label
         ws.cell(row=row, column=1).font = LBOExcelTemplate.FONT_BODY
@@ -94,7 +102,9 @@ class LBOExcelTemplate:
         ws.cell(row=row, column=2).font = LBOExcelTemplate.FONT_BODY
 
     @staticmethod
-    def _set_column_widths(ws: openpyxl.worksheet.worksheet.Worksheet, widths: Dict[str, float]) -> None:
+    def _set_column_widths(
+        ws: openpyxl.worksheet.worksheet.Worksheet, widths: Dict[str, float]
+    ) -> None:
         """Set column widths."""
         for col, width in widths.items():
             ws.column_dimensions[col].width = width
@@ -121,7 +131,10 @@ class LBOExcelTemplate:
         metrics = [
             ("Entry EBITDA", f"${assumptions.get('entry_ebitda', 0):,.0f}"),
             ("Entry Multiple", f"{assumptions.get('entry_multiple', 0):.1f}x"),
-            ("Enterprise Value", f"${assumptions.get('entry_ebitda', 0) * assumptions.get('entry_multiple', 0):,.0f}"),
+            (
+                "Enterprise Value",
+                f"${assumptions.get('entry_ebitda', 0) * assumptions.get('entry_multiple', 0):,.0f}",
+            ),
             ("Exit Year", assumptions.get("exit_year", 5)),
             ("Exit Multiple", f"{assumptions.get('exit_multiple', 0):.1f}x"),
         ]
@@ -134,7 +147,9 @@ class LBOExcelTemplate:
         return ws
 
     @staticmethod
-    def create_executive_summary(wb: openpyxl.Workbook, model_data: Dict) -> openpyxl.worksheet.worksheet.Worksheet:
+    def create_executive_summary(
+        wb: openpyxl.Workbook, model_data: Dict
+    ) -> openpyxl.worksheet.worksheet.Worksheet:
         """Create executive summary sheet with key highlights."""
         ws = LBOExcelTemplate._get_or_create_sheet(wb, "Executive Summary", 1)
 
@@ -192,7 +207,9 @@ class LBOExcelTemplate:
         return row + 1  # Return next row with spacing
 
     @staticmethod
-    def create_assumptions_sheet(wb: openpyxl.Workbook, assumptions: Dict) -> openpyxl.worksheet.worksheet.Worksheet:
+    def create_assumptions_sheet(
+        wb: openpyxl.Workbook, assumptions: Dict
+    ) -> openpyxl.worksheet.worksheet.Worksheet:
         """Create assumptions sheet with all model inputs."""
         ws = LBOExcelTemplate._get_or_create_sheet(wb, "Assumptions")
 
@@ -207,7 +224,10 @@ class LBOExcelTemplate:
                 ("Existing Cash", assumptions.get("existing_cash", 0)),
             ],
             "Operating Assumptions": [
-                ("Revenue Growth Rate (Year 1)", f"{assumptions.get('revenue_growth_rate', [0])[0]*100:.1f}%"),
+                (
+                    "Revenue Growth Rate (Year 1)",
+                    f"{assumptions.get('revenue_growth_rate', [0])[0]*100:.1f}%",
+                ),
                 ("COGS % of Revenue", f"{assumptions.get('cogs_pct_of_revenue', 0)*100:.1f}%"),
                 ("SG&A % of Revenue", f"{assumptions.get('sganda_pct_of_revenue', 0)*100:.1f}%"),
                 ("CapEx % of Revenue", f"{assumptions.get('capex_pct_of_revenue', 0)*100:.1f}%"),

@@ -11,7 +11,12 @@ from .lbo_model_generator import LBOModel, LBOAssumptions, LBODebtStructure, cre
 
 from .lbo_ai_recommender import LBOModelAIRecommender, recommend_lbo_parameters
 
-from .lbo_ai_validator import LBOModelAIValidator, ValidationResult, ScenarioAnalysis, BenchmarkResult
+from .lbo_ai_validator import (
+    LBOModelAIValidator,
+    ValidationResult,
+    ScenarioAnalysis,
+    BenchmarkResult,
+)
 
 from .lbo_exceptions import (
     LBOError,
@@ -40,7 +45,10 @@ except ImportError:
 try:
     from .lbo_model_auditor import LBOModelAuditor, AuditReport, AuditFinding
     from .lbo_consistency_helpers import LBOConsistencyHelper
-    from .lbo_validation_enhanced import EnhancedLBOValidator, ValidationResult as EnhancedValidationResult
+    from .lbo_validation_enhanced import (
+        EnhancedLBOValidator,
+        ValidationResult as EnhancedValidationResult,
+    )
     from .lbo_chart_improvements import ChartStructureImprover
 except ImportError:
     LBOModelAuditor = None

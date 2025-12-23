@@ -206,7 +206,9 @@ class ExcelFormattingHelper:
         cell.alignment = Alignment(horizontal="left", vertical="center")
 
     @staticmethod
-    def set_column_width(ws: openpyxl.worksheet.worksheet.Worksheet, column: Union[str, int], width: float) -> None:
+    def set_column_width(
+        ws: openpyxl.worksheet.worksheet.Worksheet, column: Union[str, int], width: float
+    ) -> None:
         """Set column width.
 
         Args:

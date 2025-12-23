@@ -37,22 +37,23 @@ mock_ai_recommendations = {
             "ebitda_multiple": 1.5,
             "interest_rate": 0.075,
             "amortization_schedule": "amortizing",
-            "amortization_periods": 5
+            "amortization_periods": 5,
         },
         {
             "name": "Subordinated Debt",
             "ebitda_multiple": 2.0,
             "interest_rate": 0.12,
-            "amortization_schedule": "bullet"
-        }
+            "amortization_schedule": "bullet",
+        },
     ],
     "exit_year": 5,
-    "starting_revenue": 15000000
+    "starting_revenue": 15000000,
 }
 
 print("MOCK AI RECOMMENDATIONS FOR SAAS COMPANY")
 print("-" * 80)
-print(f"""
+print(
+    f"""
 Business: SaaS company with $15M ARR, 35% EBITDA margins
 
 Recommended Parameters:
@@ -80,7 +81,8 @@ Debt Structure:
 Reasoning: SaaS companies typically command higher multiples due to recurring revenue,
 scalability, and asset-light model. Conservative debt structure appropriate for growth
 stage company.
-""")
+"""
+)
 
 print("\n" + "=" * 80)
 print("GENERATING LBO MODEL FROM MOCK AI RECOMMENDATIONS")
@@ -89,7 +91,7 @@ print("=" * 80)
 try:
     model = create_lbo_from_inputs(mock_ai_recommendations)
     returns = model.calculate_returns()
-    
+
     print("\n✓ Model generated successfully!")
     print("\nReturns Analysis:")
     print(f"  Exit Year:              {returns['exit_year']}")
@@ -99,12 +101,12 @@ try:
     print(f"  Equity Invested:        ${returns['equity_invested']:,.0f}")
     print(f"  MOIC:                   {returns['moic']:.2f}x")
     print(f"  IRR:                    {returns['irr']:.2f}%")
-    
+
     # Export to Excel
     output_file = "test_ai_mock_recommendations.xlsx"
     model.export_to_excel(output_file)
     print(f"\n✓ Excel file created: {output_file}")
-    
+
     # Show some key metrics
     print("\n" + "=" * 80)
     print("KEY METRICS FROM MODEL")
@@ -112,14 +114,20 @@ try:
     print(f"\nYear 1:")
     print(f"  Revenue: ${model.income_statement.loc['Revenue', 1]:,.0f}")
     print(f"  EBITDA: ${model.income_statement.loc['EBITDA', 1]:,.0f}")
-    print(f"  EBITDA Margin: {model.income_statement.loc['EBITDA', 1] / model.income_statement.loc['Revenue', 1] * 100:.1f}%")
-    
+    print(
+        f"  EBITDA Margin: {model.income_statement.loc['EBITDA', 1] / model.income_statement.loc['Revenue', 1] * 100:.1f}%"
+    )
+
     print(f"\nYear 5:")
     print(f"  Revenue: ${model.income_statement.loc['Revenue', 5]:,.0f}")
     print(f"  EBITDA: ${model.income_statement.loc['EBITDA', 5]:,.0f}")
-    print(f"  EBITDA Margin: {model.income_statement.loc['EBITDA', 5] / model.income_statement.loc['Revenue', 5] * 100:.1f}%")
-    print(f"  Revenue CAGR: {((model.income_statement.loc['Revenue', 5] / model.income_statement.loc['Revenue', 1]) ** (1/4) - 1) * 100:.1f}%")
-    
+    print(
+        f"  EBITDA Margin: {model.income_statement.loc['EBITDA', 5] / model.income_statement.loc['Revenue', 5] * 100:.1f}%"
+    )
+    print(
+        f"  Revenue CAGR: {((model.income_statement.loc['Revenue', 5] / model.income_statement.loc['Revenue', 1]) ** (1/4) - 1) * 100:.1f}%"
+    )
+
     print("\n" + "=" * 80)
     print("✓ MOCK AI TEST COMPLETE")
     print("=" * 80)
@@ -127,9 +135,9 @@ try:
     print("  1. Get API key from: https://platform.openai.com/api-keys")
     print("  2. Set: export OPENAI_API_KEY='your-api-key-here'")
     print("  3. Run: python3 test_lbo_generator.py")
-    
+
 except Exception as e:
     print(f"\n✗ Error: {e}")
     import traceback
-    traceback.print_exc()
 
+    traceback.print_exc()

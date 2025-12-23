@@ -116,19 +116,25 @@ class EnhancedLBOValidator:
                     <= ir
                     <= EnhancedLBOValidator.RANGES["interest_rate"][1]
                 ):
-                    warnings.append(f"Debt instrument {i} interest rate ({ir:.1%}) is outside typical range")
+                    warnings.append(
+                        f"Debt instrument {i} interest rate ({ir:.1%}) is outside typical range"
+                    )
 
             if "ebitda_multiple" in debt and debt.get("ebitda_multiple", 0) > 0:
                 mult = debt["ebitda_multiple"]
                 if mult > EnhancedLBOValidator.RANGES["ebitda_multiple"][1]:
-                    warnings.append(f"Debt instrument {i} EBITDA multiple ({mult:.1f}x) is very high")
+                    warnings.append(
+                        f"Debt instrument {i} EBITDA multiple ({mult:.1f}x) is very high"
+                    )
                 total_debt_multiple += mult
             elif "amount" in debt and debt.get("amount", 0) > 0:
                 if ebitda > 0:
                     total_debt_multiple += debt["amount"] / ebitda
 
         if total_debt_multiple > 7.0:
-            warnings.append(f"Total debt multiple ({total_debt_multiple:.1f}x) is very high (>7.0x)")
+            warnings.append(
+                f"Total debt multiple ({total_debt_multiple:.1f}x) is very high (>7.0x)"
+            )
         elif total_debt_multiple < 1.0:
             warnings.append(f"Total debt multiple ({total_debt_multiple:.1f}x) is very low (<1.0x)")
 
@@ -161,7 +167,9 @@ class EnhancedLBOValidator:
         exit_mult = config.get("exit_multiple", 7.5)
         entry_mult = config.get("entry_multiple", 0)
         if exit_mult < entry_mult * 0.5:
-            warnings.append(f"Exit multiple ({exit_mult:.1f}x) is significantly lower than entry ({entry_mult:.1f}x)")
+            warnings.append(
+                f"Exit multiple ({exit_mult:.1f}x) is significantly lower than entry ({entry_mult:.1f}x)"
+            )
         return warnings
 
     @staticmethod
@@ -182,7 +190,9 @@ class EnhancedLBOValidator:
         # Validate required fields
         errors.extend(EnhancedLBOValidator._validate_required_fields(config))
         if errors:
-            return ValidationResult(is_valid=False, errors=errors, warnings=warnings, info=info, score=0.0)
+            return ValidationResult(
+                is_valid=False, errors=errors, warnings=warnings, info=info, score=0.0
+            )
 
         # Validate entry metrics
         entry_errors, entry_warnings = EnhancedLBOValidator._validate_entry_metrics(config)
@@ -216,7 +226,9 @@ class EnhancedLBOValidator:
         score -= len(warnings) * 0.1
         score = max(0.0, min(1.0, score))
 
-        return ValidationResult(is_valid=len(errors) == 0, errors=errors, warnings=warnings, info=info, score=score)
+        return ValidationResult(
+            is_valid=len(errors) == 0, errors=errors, warnings=warnings, info=info, score=score
+        )
 
     @staticmethod
     def validate_debt_structure(config: Dict) -> Tuple[bool, List[str]]:
@@ -243,12 +255,16 @@ class EnhancedLBOValidator:
 
         # Check for reasonable interest rate progression
         interest_rates = [
-            (d.get("interest_rate", 0), d.get("priority", 999)) for d in debt_instruments if "interest_rate" in d
+            (d.get("interest_rate", 0), d.get("priority", 999))
+            for d in debt_instruments
+            if "interest_rate" in d
         ]
         if len(interest_rates) > 1:
             sorted_rates = sorted(interest_rates, key=lambda x: x[1])
             for i in range(1, len(sorted_rates)):
                 if sorted_rates[i][0] < sorted_rates[i - 1][0]:
-                    issues.append("Interest rates should increase with priority (senior < subordinated)")
+                    issues.append(
+                        "Interest rates should increase with priority (senior < subordinated)"
+                    )
 
         return len(issues) == 0, issues

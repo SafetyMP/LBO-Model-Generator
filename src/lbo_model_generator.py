@@ -19,17 +19,29 @@ import logging
 # Handle both package and direct imports
 try:
     from .lbo_constants import LBOConstants
-    from .lbo_exceptions import LBOValidationError, LBOCalculationError, LBOAIServiceError, LBOConfigurationError
+    from .lbo_exceptions import (
+        LBOValidationError,
+        LBOCalculationError,
+        LBOAIServiceError,
+        LBOConfigurationError,
+    )
     from .lbo_industry_standards import IndustryStandardTemplate
     from .lbo_industry_excel import IndustryStandardExcelExporter
 except ImportError:
     from lbo_constants import LBOConstants
-    from lbo_exceptions import LBOValidationError, LBOCalculationError, LBOAIServiceError, LBOConfigurationError
+    from lbo_exceptions import (
+        LBOValidationError,
+        LBOCalculationError,
+        LBOAIServiceError,
+        LBOConfigurationError,
+    )
     from lbo_industry_standards import IndustryStandardTemplate
     from lbo_industry_excel import IndustryStandardExcelExporter
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -114,9 +126,13 @@ class LBOAssumptions:
     # Exit assumptions
     exit_year: int = 5
     exit_multiple: float = 7.5
-    target_exit_debt: float = 0.0  # Target debt level at exit (0 = pay down all debt, >0 = maintain strategic debt)
+    target_exit_debt: float = (
+        0.0  # Target debt level at exit (0 = pay down all debt, >0 = maintain strategic debt)
+    )
     max_debt_paydown_per_year: float = 0.0  # Maximum annual debt paydown (0 = unlimited)
-    fcf_conversion_rate: float = 0.0  # FCF conversion rate (0 = calculate from CFO - CapEx, >0 = EBITDA * rate)
+    fcf_conversion_rate: float = (
+        0.0  # FCF conversion rate (0 = calculate from CFO - CapEx, >0 = EBITDA * rate)
+    )
 
     # Starting revenue (for projections)
     starting_revenue: float = 0.0
@@ -175,7 +191,9 @@ class LBOAssumptions:
             errors.append("days_payable_outstanding must be between 0 and 365")
 
         if errors:
-            raise ValueError("LBOAssumptions validation failed:\n" + "\n".join(f"  - {e}" for e in errors))
+            raise ValueError(
+                "LBOAssumptions validation failed:\n" + "\n".join(f"  - {e}" for e in errors)
+            )
 
 
 class ExcelRowFinder:
@@ -219,7 +237,10 @@ class ExcelRowFinder:
 
     @staticmethod
     def build_row_map(
-        ws: openpyxl.worksheet.worksheet.Worksheet, start_row: int = 1, end_row: int = None, column: int = 1
+        ws: openpyxl.worksheet.worksheet.Worksheet,
+        start_row: int = 1,
+        end_row: int = None,
+        column: int = 1,
     ) -> Dict[str, int]:
         """Build a map of all row labels to row indices.
 
@@ -336,7 +357,9 @@ class LBOModel:
             self._calculate_transaction_values()
 
             # Initialize financial statements
-            self.income_statement = pd.DataFrame(index=self._get_is_line_items(), columns=self.years)
+            self.income_statement = pd.DataFrame(
+                index=self._get_is_line_items(), columns=self.years
+            )
             self.balance_sheet = pd.DataFrame(index=self._get_bs_line_items(), columns=self.years)
             self.cash_flow = pd.DataFrame(index=self._get_cf_line_items(), columns=self.years)
             self.debt_schedule = {}
@@ -377,7 +400,9 @@ class LBOModel:
 
         # Industry standard: Equity Value = EV - Existing Debt + Existing Cash
         # Cash reduces net debt, effectively increasing the equity purchase price
-        self.equity_value = self.enterprise_value - self.assumptions.existing_debt + self.assumptions.existing_cash
+        self.equity_value = (
+            self.enterprise_value - self.assumptions.existing_debt + self.assumptions.existing_cash
+        )
 
         # Calculate debt amounts if using EBITDA multiples
         total_debt_calc = 0.0
@@ -387,13 +412,18 @@ class LBOModel:
             total_debt_calc += debt.amount
 
         # Calculate transaction expenses and financing fees first
-        self.transaction_expenses = self._round_value(self.enterprise_value * self.assumptions.transaction_expenses_pct)
+        self.transaction_expenses = self._round_value(
+            self.enterprise_value * self.assumptions.transaction_expenses_pct
+        )
         total_debt = sum(d.amount for d in self.assumptions.debt_instruments)
         self.financing_fees = self._round_value(total_debt * self.assumptions.financing_fees_pct)
 
         # Calculate total uses
         total_uses_calc = self._round_value(
-            self.equity_value + self.assumptions.existing_debt + self.transaction_expenses + self.financing_fees
+            self.equity_value
+            + self.assumptions.existing_debt
+            + self.transaction_expenses
+            + self.financing_fees
         )
 
         # If equity not specified, calculate it to balance sources and uses
@@ -421,7 +451,10 @@ class LBOModel:
         # Calculate sources and uses (should now balance)
         self.total_sources = self._round_value(self.assumptions.equity_amount + total_debt)
         self.total_uses = self._round_value(
-            self.equity_value + self.assumptions.existing_debt + self.transaction_expenses + self.financing_fees
+            self.equity_value
+            + self.assumptions.existing_debt
+            + self.transaction_expenses
+            + self.financing_fees
         )
 
         # Validate balance
@@ -543,7 +576,9 @@ class LBOModel:
         # Step 1: Revenue (with growth rates)
         if self.assumptions.starting_revenue == 0.0:
             # Estimate from EBITDA margin
-            ebitda_margin = 1 - self.assumptions.cogs_pct_of_revenue - self.assumptions.sganda_pct_of_revenue
+            ebitda_margin = (
+                1 - self.assumptions.cogs_pct_of_revenue - self.assumptions.sganda_pct_of_revenue
+            )
             self.assumptions.starting_revenue = self.assumptions.entry_ebitda / ebitda_margin
 
         prev_revenue = self.assumptions.starting_revenue
@@ -597,7 +632,11 @@ class LBOModel:
                     ("EBITDA", 3),
                 ]
 
-                pct_rows = [idx for idx, item in enumerate(self.income_statement.index) if item == "% of Sales"]
+                pct_rows = [
+                    idx
+                    for idx, item in enumerate(self.income_statement.index)
+                    if item == "% of Sales"
+                ]
 
                 for item_name, pct_idx in items_map:
                     try:
@@ -610,15 +649,21 @@ class LBOModel:
 
         # D&A (separate Depreciation and Amortization)
         if self.assumptions.initial_ppe > 0:
-            annual_depreciation = self.assumptions.initial_ppe * self.assumptions.depreciation_pct_of_ppe
+            annual_depreciation = (
+                self.assumptions.initial_ppe * self.assumptions.depreciation_pct_of_ppe
+            )
             annual_amortization = self.financing_fees / self.num_years
         else:
             # Estimate from revenue using constants
-            annual_depreciation = self.assumptions.starting_revenue * LBOConstants.DEFAULT_DEPRECIATION_TO_REVENUE_RATIO
+            annual_depreciation = (
+                self.assumptions.starting_revenue
+                * LBOConstants.DEFAULT_DEPRECIATION_TO_REVENUE_RATIO
+            )
             annual_amortization = (
                 self.financing_fees / self.num_years
                 if self.financing_fees > 0
-                else self.assumptions.starting_revenue * LBOConstants.DEFAULT_AMORTIZATION_TO_REVENUE_RATIO
+                else self.assumptions.starting_revenue
+                * LBOConstants.DEFAULT_AMORTIZATION_TO_REVENUE_RATIO
             )
 
         for year in self.years:
@@ -630,7 +675,9 @@ class LBOModel:
             ebitda = self.income_statement.loc["EBITDA", year]
             depreciation = self.income_statement.loc["Depreciation", year]
             amortization = self.income_statement.loc["Amortization", year]
-            self.income_statement.loc["EBIT", year] = self._round_value(ebitda - depreciation - amortization)
+            self.income_statement.loc["EBIT", year] = self._round_value(
+                ebitda - depreciation - amortization
+            )
 
         # Interest Expense (calculated from debt schedule later)
         for year in self.years:
@@ -672,7 +719,9 @@ class LBOModel:
                             if d.name in self.debt_schedule:
                                 # Use beginning balance for this year if available
                                 if year - 1 < len(self.debt_schedule[d.name]["beginning_balance"]):
-                                    current_total_debt += self.debt_schedule[d.name]["beginning_balance"][year - 1]
+                                    current_total_debt += self.debt_schedule[d.name][
+                                        "beginning_balance"
+                                    ][year - 1]
                                 else:
                                     # If not yet calculated, use the debt amount
                                     current_total_debt += d.amount
@@ -680,7 +729,9 @@ class LBOModel:
                                 # If debt schedule not yet initialized, use debt amount
                                 current_total_debt += d.amount
 
-                        remaining_paydown_needed = current_total_debt - self.assumptions.target_exit_debt
+                        remaining_paydown_needed = (
+                            current_total_debt - self.assumptions.target_exit_debt
+                        )
                         # Limit scheduled principal to not exceed remaining paydown needed
                         if remaining_paydown_needed > 0.01:
                             # Distribute remaining paydown across remaining years
@@ -751,7 +802,9 @@ class LBOModel:
         self.balance_sheet.loc["Cash", 1] = self._round_value(initial_cash)
         self.balance_sheet.loc["Accounts Receivable", 1] = self._round_value(initial_ar)
         self.balance_sheet.loc["Inventory", 1] = self._round_value(initial_inv)
-        self.balance_sheet.loc["Total Current Assets", 1] = self._round_value(initial_cash + initial_ar + initial_inv)
+        self.balance_sheet.loc["Total Current Assets", 1] = self._round_value(
+            initial_cash + initial_ar + initial_inv
+        )
 
         # PP&E (reduced by depreciation each year)
         cumulative_depreciation = 0.0
@@ -770,10 +823,14 @@ class LBOModel:
         for year in self.years:
             amortization = self.financing_fees / self.num_years
             if year == 1:
-                self.balance_sheet.loc["Intangible Assets (Financing Fees)", year] = self._round_value(remaining_fees)
+                self.balance_sheet.loc["Intangible Assets (Financing Fees)", year] = (
+                    self._round_value(remaining_fees)
+                )
             else:
                 remaining_fees -= amortization
-                self.balance_sheet.loc["Intangible Assets (Financing Fees)", year] = self._round_value(remaining_fees)
+                self.balance_sheet.loc["Intangible Assets (Financing Fees)", year] = (
+                    self._round_value(remaining_fees)
+                )
 
         # Accounts Receivable and Inventory (update each year)
         for year in self.years:
@@ -782,14 +839,20 @@ class LBOModel:
                 revenue * self.assumptions.days_sales_outstanding / 365
             )
             self.balance_sheet.loc["Inventory", year] = self._round_value(
-                revenue * self.assumptions.cogs_pct_of_revenue * self.assumptions.days_inventory_outstanding / 365
+                revenue
+                * self.assumptions.cogs_pct_of_revenue
+                * self.assumptions.days_inventory_outstanding
+                / 365
             )
 
         # Accounts Payable
         for year in self.years:
             revenue = self.income_statement.loc["Revenue", year]
             self.balance_sheet.loc["Accounts Payable", year] = self._round_value(
-                revenue * self.assumptions.cogs_pct_of_revenue * self.assumptions.days_payable_outstanding / 365
+                revenue
+                * self.assumptions.cogs_pct_of_revenue
+                * self.assumptions.days_payable_outstanding
+                / 365
             )
             self.balance_sheet.loc["Total Current Liabilities", year] = self._round_value(
                 self.balance_sheet.loc["Accounts Payable", year]
@@ -803,7 +866,8 @@ class LBOModel:
         # Liabilities
         for year in self.years:
             self.balance_sheet.loc["Total Liabilities", year] = self._round_value(
-                self.balance_sheet.loc["Total Current Liabilities", year] + self.balance_sheet.loc["Total Debt", year]
+                self.balance_sheet.loc["Total Current Liabilities", year]
+                + self.balance_sheet.loc["Total Debt", year]
             )
 
         # Assets (will be updated with cash from CF)
@@ -838,7 +902,11 @@ class LBOModel:
                 if pd.notna(self.balance_sheet.loc["Accounts Receivable", 1])
                 else 0
             )
-            prev_inv = self.balance_sheet.loc["Inventory", 1] if pd.notna(self.balance_sheet.loc["Inventory", 1]) else 0
+            prev_inv = (
+                self.balance_sheet.loc["Inventory", 1]
+                if pd.notna(self.balance_sheet.loc["Inventory", 1])
+                else 0
+            )
             prev_ap = (
                 self.balance_sheet.loc["Accounts Payable", 1]
                 if pd.notna(self.balance_sheet.loc["Accounts Payable", 1])
@@ -867,7 +935,9 @@ class LBOModel:
             else 0
         )
         curr_inv = (
-            self.balance_sheet.loc["Inventory", year] if pd.notna(self.balance_sheet.loc["Inventory", year]) else 0
+            self.balance_sheet.loc["Inventory", year]
+            if pd.notna(self.balance_sheet.loc["Inventory", year])
+            else 0
         )
         curr_ap = (
             self.balance_sheet.loc["Accounts Payable", year]
@@ -875,9 +945,13 @@ class LBOModel:
             else 0
         )
 
-        self.cash_flow.loc["Change in Accounts Receivable", year] = self._round_value(-(curr_ar - prev_ar))
+        self.cash_flow.loc["Change in Accounts Receivable", year] = self._round_value(
+            -(curr_ar - prev_ar)
+        )
         self.cash_flow.loc["Change in Inventory", year] = self._round_value(-(curr_inv - prev_inv))
-        self.cash_flow.loc["Change in Accounts Payable", year] = self._round_value(curr_ap - prev_ap)
+        self.cash_flow.loc["Change in Accounts Payable", year] = self._round_value(
+            curr_ap - prev_ap
+        )
 
         net_wc_change = self._round_value(
             self.cash_flow.loc["Change in Accounts Receivable", year]
@@ -935,7 +1009,9 @@ class LBOModel:
         )
         return cff
 
-    def _calculate_financing_activities_future_years(self, year: int, total_debt_repayment: float) -> float:
+    def _calculate_financing_activities_future_years(
+        self, year: int, total_debt_repayment: float
+    ) -> float:
         """Calculate financing activities for Years 2+ (no transaction items)."""
         self.cash_flow.loc["Debt Issuance", year] = 0.0
         self.cash_flow.loc["Equity Contribution", year] = 0.0
@@ -946,7 +1022,9 @@ class LBOModel:
 
         return self._round_value(-total_debt_repayment)
 
-    def _reconcile_cash_balance(self, year: int, beginning_cash: float, cfo: float, capex: float, cff: float) -> float:
+    def _reconcile_cash_balance(
+        self, year: int, beginning_cash: float, cfo: float, capex: float, cff: float
+    ) -> float:
         """Reconcile cash balance for a year."""
         net_change = self._round_value(cfo + capex + cff)
         self.cash_flow.loc["Net Change in Cash", year] = net_change
@@ -973,7 +1051,8 @@ class LBOModel:
 
             year_idx = year - 1
             total_debt_repayment = sum(
-                self.debt_schedule[debt.name]["principal_paid"][year_idx] for debt in self.assumptions.debt_instruments
+                self.debt_schedule[debt.name]["principal_paid"][year_idx]
+                for debt in self.assumptions.debt_instruments
             )
             self.cash_flow.loc["Debt Repayment", year] = self._round_value(-total_debt_repayment)
 
@@ -1019,7 +1098,9 @@ class LBOModel:
         original_debt_schedule = {}
         for debt in self.assumptions.debt_instruments:
             original_debt_schedule[debt.name] = {
-                "beginning_balance": [b for b in self.debt_schedule[debt.name]["beginning_balance"]],
+                "beginning_balance": [
+                    b for b in self.debt_schedule[debt.name]["beginning_balance"]
+                ],
                 "principal_paid": [p for p in self.debt_schedule[debt.name]["principal_paid"]],
                 "ending_balance": [e for e in self.debt_schedule[debt.name]["ending_balance"]],
                 "interest_paid": [i for i in self.debt_schedule[debt.name]["interest_paid"]],
@@ -1042,7 +1123,9 @@ class LBOModel:
                     remaining_sweep = total_available_for_sweep
 
                     # Sort debt by priority (1 = senior, 2 = subordinated, etc.)
-                    sorted_debt = sorted(self.assumptions.debt_instruments, key=lambda d: d.priority)
+                    sorted_debt = sorted(
+                        self.assumptions.debt_instruments, key=lambda d: d.priority
+                    )
 
                     # Determine if this is the final/exit year
                     is_exit_year = year_idx == len(self.years) - 1
@@ -1053,7 +1136,13 @@ class LBOModel:
 
                         # Apply sweep to this debt instrument using helper method
                         actual_sweep = self._apply_sweep_to_single_debt(
-                            debt, year, year_idx, remaining_sweep, min_cash, original_debt_schedule, is_exit_year
+                            debt,
+                            year,
+                            year_idx,
+                            remaining_sweep,
+                            min_cash,
+                            original_debt_schedule,
+                            is_exit_year,
                         )
 
                         remaining_sweep -= actual_sweep
@@ -1064,7 +1153,9 @@ class LBOModel:
                         self.debt_schedule[debt.name]["ending_balance"][year_idx]
                         for debt in self.assumptions.debt_instruments
                     )
-                    self.balance_sheet.loc["Total Debt", year] = self._round_value(total_debt_after_sweep)
+                    self.balance_sheet.loc["Total Debt", year] = self._round_value(
+                        total_debt_after_sweep
+                    )
 
                     # CRITICAL: Recalculate Total Liabilities and Equity after debt changes
                     total_current_liab = self.balance_sheet.loc["Total Current Liabilities", year]
@@ -1078,7 +1169,9 @@ class LBOModel:
                     total_liab = self.balance_sheet.loc["Total Liabilities", year]
                     equity = self._round_value(total_assets - total_liab)
                     self.balance_sheet.loc["Shareholders Equity", year] = equity
-                    self.balance_sheet.loc["Total Liabilities & Equity", year] = self._round_value(total_liab + equity)
+                    self.balance_sheet.loc["Total Liabilities & Equity", year] = self._round_value(
+                        total_liab + equity
+                    )
 
             # If no sweep was applied in this iteration, we're done
             if total_sweep_this_iteration < 0.01:
@@ -1107,7 +1200,9 @@ class LBOModel:
                         f"Limiting principal to beginning balance."
                     )
                     principal = beg_balance
-                    self.debt_schedule[debt.name]["principal_paid"][year_idx] = self._round_value(principal)
+                    self.debt_schedule[debt.name]["principal_paid"][year_idx] = self._round_value(
+                        principal
+                    )
 
                 # Recalculate ending balance to ensure Beginning - Principal = Ending
                 ending = self._round_value(beg_balance - principal)
@@ -1116,7 +1211,9 @@ class LBOModel:
 
                 # Recalculate interest based on beginning balance
                 interest = beg_balance * debt.interest_rate
-                self.debt_schedule[debt.name]["interest_paid"][year_idx] = self._round_value(interest)
+                self.debt_schedule[debt.name]["interest_paid"][year_idx] = self._round_value(
+                    interest
+                )
 
                 # Update next year's beginning balance if not last year
                 if year_idx < len(self.years) - 1:
@@ -1141,14 +1238,18 @@ class LBOModel:
         # Industry standard: Calculate available cash for sweep
         # Available cash = Cash Generated by Operations - Required Payments - Minimum Cash
         cfo = self.cash_flow.loc["Cash Flow from Operations", year]
-        capex = abs(self.cash_flow.loc["Cash Flow from Investing", year])  # CapEx is negative, make positive
+        capex = abs(
+            self.cash_flow.loc["Cash Flow from Investing", year]
+        )  # CapEx is negative, make positive
 
         # Required debt service = scheduled principal + interest payments
         required_principal = sum(
-            original_debt_schedule[debt.name]["principal_paid"][year_idx] for debt in self.assumptions.debt_instruments
+            original_debt_schedule[debt.name]["principal_paid"][year_idx]
+            for debt in self.assumptions.debt_instruments
         )
         required_interest = sum(
-            original_debt_schedule[debt.name]["interest_paid"][year_idx] for debt in self.assumptions.debt_instruments
+            original_debt_schedule[debt.name]["interest_paid"][year_idx]
+            for debt in self.assumptions.debt_instruments
         )
         required_debt_service = required_principal + required_interest
 
@@ -1168,7 +1269,8 @@ class LBOModel:
 
         # Apply target exit debt limit if specified
         current_total_debt = sum(
-            self.debt_schedule[debt.name]["ending_balance"][year_idx] for debt in self.assumptions.debt_instruments
+            self.debt_schedule[debt.name]["ending_balance"][year_idx]
+            for debt in self.assumptions.debt_instruments
         )
 
         if self.assumptions.target_exit_debt > 0.01:
@@ -1195,7 +1297,8 @@ class LBOModel:
             return actual_sweep
 
         current_total_debt = sum(
-            self.debt_schedule[d.name]["ending_balance"][year_idx] for d in self.assumptions.debt_instruments
+            self.debt_schedule[d.name]["ending_balance"][year_idx]
+            for d in self.assumptions.debt_instruments
         )
         current_debt_after_sweep = current_total_debt - actual_sweep
 
@@ -1206,7 +1309,9 @@ class LBOModel:
 
         return actual_sweep
 
-    def _update_debt_schedule_after_sweep(self, debt: LBODebtStructure, year_idx: int, actual_sweep: float) -> None:
+    def _update_debt_schedule_after_sweep(
+        self, debt: LBODebtStructure, year_idx: int, actual_sweep: float
+    ) -> None:
         """Update debt schedule after applying sweep."""
         current_beginning_balance = self.debt_schedule[debt.name]["beginning_balance"][year_idx]
         current_total_principal = self.debt_schedule[debt.name]["principal_paid"][year_idx]
@@ -1227,20 +1332,28 @@ class LBOModel:
                 self.debt_schedule[debt.name]["beginning_balance"][future_idx] = prev_ending
 
         recalc_interest = current_beginning_balance * debt.interest_rate
-        self.debt_schedule[debt.name]["interest_paid"][year_idx] = self._round_value(recalc_interest)
+        self.debt_schedule[debt.name]["interest_paid"][year_idx] = self._round_value(
+            recalc_interest
+        )
 
     def _update_cash_flow_after_sweep(
         self, debt: LBODebtStructure, year: int, year_idx: int, actual_sweep: float, min_cash: float
     ) -> float:
         """Update cash flow after sweep and return adjusted sweep amount."""
         current_repayment = self.cash_flow.loc["Debt Repayment", year]
-        self.cash_flow.loc["Debt Repayment", year] = self._round_value(current_repayment - actual_sweep)
+        self.cash_flow.loc["Debt Repayment", year] = self._round_value(
+            current_repayment - actual_sweep
+        )
 
         current_cff = self.cash_flow.loc["Cash Flow from Financing", year]
-        self.cash_flow.loc["Cash Flow from Financing", year] = self._round_value(current_cff - actual_sweep)
+        self.cash_flow.loc["Cash Flow from Financing", year] = self._round_value(
+            current_cff - actual_sweep
+        )
 
         current_net_change = self.cash_flow.loc["Net Change in Cash", year]
-        self.cash_flow.loc["Net Change in Cash", year] = self._round_value(current_net_change - actual_sweep)
+        self.cash_flow.loc["Net Change in Cash", year] = self._round_value(
+            current_net_change - actual_sweep
+        )
 
         current_ending_cash = self.cash_flow.loc["Ending Cash Balance", year]
         new_ending_cash = self._round_value(current_ending_cash - actual_sweep)
@@ -1306,7 +1419,9 @@ class LBOModel:
             return 0.0
 
         self._update_debt_schedule_after_sweep(debt, year_idx, actual_sweep)
-        actual_sweep = self._update_cash_flow_after_sweep(debt, year, year_idx, actual_sweep, min_cash)
+        actual_sweep = self._update_cash_flow_after_sweep(
+            debt, year, year_idx, actual_sweep, min_cash
+        )
         self._update_balance_sheet_totals(year)
 
         return actual_sweep
@@ -1334,9 +1449,13 @@ class LBOModel:
                     self.debt_schedule[debt.name]["beginning_balance"][future_year_idx + 1] = 0.0
             else:
                 interest = beg_balance * debt.interest_rate
-                self.debt_schedule[debt.name]["interest_paid"][future_year_idx] = self._round_value(interest)
+                self.debt_schedule[debt.name]["interest_paid"][future_year_idx] = self._round_value(
+                    interest
+                )
 
-                original_scheduled = original_debt_schedule[debt.name]["principal_paid"][future_year_idx]
+                original_scheduled = original_debt_schedule[debt.name]["principal_paid"][
+                    future_year_idx
+                ]
                 current_total = self.debt_schedule[debt.name]["principal_paid"][future_year_idx]
                 already_swept = current_total - original_scheduled
 
@@ -1349,7 +1468,9 @@ class LBOModel:
                             if self.debt_schedule[debt.name]["principal_paid"][i] > 0.01
                         )
                         if years_amortized < debt.amortization_periods:
-                            original_scheduled = self._round_value(debt.amount / debt.amortization_periods)
+                            original_scheduled = self._round_value(
+                                debt.amount / debt.amortization_periods
+                            )
                             scheduled_principal = min(original_scheduled, beg_balance)
                             scheduled_principal = self._round_value(scheduled_principal)
                     elif debt.amortization_schedule == "bullet":
@@ -1357,8 +1478,8 @@ class LBOModel:
                             scheduled_principal = self._round_value(beg_balance)
 
                     scheduled_principal = min(scheduled_principal, beg_balance)
-                    self.debt_schedule[debt.name]["principal_paid"][future_year_idx] = self._round_value(
-                        scheduled_principal
+                    self.debt_schedule[debt.name]["principal_paid"][future_year_idx] = (
+                        self._round_value(scheduled_principal)
                     )
 
                 current_principal = self.debt_schedule[debt.name]["principal_paid"][future_year_idx]
@@ -1377,7 +1498,9 @@ class LBOModel:
                 self.debt_schedule[debt.name]["ending_balance"][future_year_idx] = new_ending
 
                 if future_year_idx < len(self.years) - 1:
-                    self.debt_schedule[debt.name]["beginning_balance"][future_year_idx + 1] = new_ending
+                    self.debt_schedule[debt.name]["beginning_balance"][
+                        future_year_idx + 1
+                    ] = new_ending
 
         # Update total debt on balance sheet
         total_debt = self._calculate_total_debt(future_year)
@@ -1410,13 +1533,17 @@ class LBOModel:
         if future_year_idx == 0:
             beginning_cash = self.assumptions.existing_cash
         else:
-            beginning_cash = self.cash_flow.loc["Ending Cash Balance", self.years[future_year_idx - 1]]
+            beginning_cash = self.cash_flow.loc[
+                "Ending Cash Balance", self.years[future_year_idx - 1]
+            ]
 
         ending_cash = self._round_value(beginning_cash + net_change)
         if self.assumptions.min_cash_balance > 0 and iteration == 0:
             ending_cash = self._round_value(max(ending_cash, self.assumptions.min_cash_balance))
 
-        self.cash_flow.loc["Beginning Cash Balance", future_year] = self._round_value(beginning_cash)
+        self.cash_flow.loc["Beginning Cash Balance", future_year] = self._round_value(
+            beginning_cash
+        )
         self.cash_flow.loc["Ending Cash Balance", future_year] = ending_cash
         self.balance_sheet.loc["Cash", future_year] = ending_cash
 
@@ -1515,21 +1642,27 @@ class LBOModel:
                     f"{debt_name} Year {year}: Bullet debt should pay full balance "
                     f"(${beg_bal:,.2f}) but paid ${principal:,.2f}"
                 )
-            scenarios["bullet"].append(f"{debt_name} Year {year}: Bullet payment of ${principal:,.2f}")
+            scenarios["bullet"].append(
+                f"{debt_name} Year {year}: Bullet payment of ${principal:,.2f}"
+            )
         else:
             if principal > tolerance:
                 if has_sweep:
                     scenarios["cash_flow_sweep"].append(
-                        f"{debt_name} Year {year}: Bullet debt paid early via sweep " f"(${principal:,.2f})"
+                        f"{debt_name} Year {year}: Bullet debt paid early via sweep "
+                        f"(${principal:,.2f})"
                     )
                 else:
                     errors.append(
-                        f"{debt_name} Year {year}: Bullet debt should have no payment " f"but paid ${principal:,.2f}"
+                        f"{debt_name} Year {year}: Bullet debt should have no payment "
+                        f"but paid ${principal:,.2f}"
                     )
 
         return errors
 
-    def _validate_final_year_debt(self, debt_name: str, final_end_bal: float, tolerance: float) -> List[str]:
+    def _validate_final_year_debt(
+        self, debt_name: str, final_end_bal: float, tolerance: float
+    ) -> List[str]:
         """Validate final year debt balance."""
         warnings = []
         if final_end_bal > tolerance * 100:
@@ -1559,19 +1692,24 @@ class LBOModel:
         if has_sweep:
             total_sweep = sum(
                 max(
-                    0, schedule["principal_paid"][i] - (debt.amount / debt.amortization_periods if is_amortizing else 0)
+                    0,
+                    schedule["principal_paid"][i]
+                    - (debt.amount / debt.amortization_periods if is_amortizing else 0),
                 )
                 for i in range(len(self.years))
             )
             if total_sweep > tolerance:
-                scenarios["cash_flow_sweep"].append(f"{debt_name}: Total sweep payments of ${total_sweep:,.2f}")
+                scenarios["cash_flow_sweep"].append(
+                    f"{debt_name}: Total sweep payments of ${total_sweep:,.2f}"
+                )
 
     def _validate_total_debt_consistency(self, tolerance: float) -> List[str]:
         """Validate total debt matches sum of instruments."""
         errors = []
         for year_idx, year in enumerate(self.years):
             total_debt_calc = sum(
-                self.debt_schedule[debt.name]["ending_balance"][year_idx] for debt in self.assumptions.debt_instruments
+                self.debt_schedule[debt.name]["ending_balance"][year_idx]
+                for debt in self.assumptions.debt_instruments
             )
             total_debt_bs = self.balance_sheet.loc["Total Debt", year]
 
@@ -1585,9 +1723,15 @@ class LBOModel:
     def _identify_mixed_structure(self, scenarios: Dict) -> None:
         """Identify mixed debt structure scenario."""
         amortizing_count = len(
-            [d for d in self.assumptions.debt_instruments if d.amortization_schedule == "amortizing"]
+            [
+                d
+                for d in self.assumptions.debt_instruments
+                if d.amortization_schedule == "amortizing"
+            ]
         )
-        bullet_count = len([d for d in self.assumptions.debt_instruments if d.amortization_schedule == "bullet"])
+        bullet_count = len(
+            [d for d in self.assumptions.debt_instruments if d.amortization_schedule == "bullet"]
+        )
 
         if amortizing_count > 0 and bullet_count > 0:
             scenarios["mixed_structure"] = [
@@ -1641,7 +1785,15 @@ class LBOModel:
 
                 errors.extend(
                     self._validate_debt_basic_checks(
-                        debt_name, year, year_idx, beg_bal, principal, interest, end_bal, debt, tolerance
+                        debt_name,
+                        year,
+                        year_idx,
+                        beg_bal,
+                        principal,
+                        interest,
+                        end_bal,
+                        debt,
+                        tolerance,
                     )
                 )
 
@@ -1652,13 +1804,27 @@ class LBOModel:
                 if is_amortizing:
                     warnings.extend(
                         self._validate_amortizing_schedule(
-                            debt_name, year, year_idx, principal, end_bal, debt, tolerance, scenarios
+                            debt_name,
+                            year,
+                            year_idx,
+                            principal,
+                            end_bal,
+                            debt,
+                            tolerance,
+                            scenarios,
                         )
                     )
                 elif is_bullet:
                     errors.extend(
                         self._validate_bullet_schedule(
-                            debt_name, year, year_idx, principal, beg_bal, has_sweep, tolerance, scenarios
+                            debt_name,
+                            year,
+                            year_idx,
+                            principal,
+                            beg_bal,
+                            has_sweep,
+                            tolerance,
+                            scenarios,
                         )
                     )
 
@@ -1693,7 +1859,10 @@ class LBOModel:
         ar = self.balance_sheet.loc["Accounts Receivable", year]
         inv = self.balance_sheet.loc["Inventory", year]
         calculated_current_assets = self._round_value(cash + ar + inv)
-        if abs(calculated_current_assets - self.balance_sheet.loc["Total Current Assets", year]) > 0.01:
+        if (
+            abs(calculated_current_assets - self.balance_sheet.loc["Total Current Assets", year])
+            > 0.01
+        ):
             self.balance_sheet.loc["Total Current Assets", year] = calculated_current_assets
 
         calculated_total_assets = self._round_value(
@@ -1714,7 +1883,9 @@ class LBOModel:
             total_liab = self.balance_sheet.loc["Total Liabilities", year]
             equity = self._round_value(assets - total_liab)
             self.balance_sheet.loc["Shareholders Equity", year] = equity
-            self.balance_sheet.loc["Total Liabilities & Equity", year] = self._round_value(total_liab + equity)
+            self.balance_sheet.loc["Total Liabilities & Equity", year] = self._round_value(
+                total_liab + equity
+            )
             logger.debug(
                 f"Adjusted equity in year {year} to ${equity:,.2f} to balance sheet (Assets=${assets:,.2f}, Liab=${total_liab:,.2f})"
             )
@@ -1788,7 +1959,9 @@ class LBOModel:
         total_liab = self.balance_sheet.loc["Total Liabilities", year]
         equity = self._round_value(total_assets - total_liab)
         self.balance_sheet.loc["Shareholders Equity", year] = equity
-        self.balance_sheet.loc["Total Liabilities & Equity", year] = self._round_value(total_liab + equity)
+        self.balance_sheet.loc["Total Liabilities & Equity", year] = self._round_value(
+            total_liab + equity
+        )
 
     def _reconcile_cross_sheet_cash(self, year: int, ending_cash: float) -> None:
         """Reconcile cash between balance sheet and cash flow statement.
@@ -1817,19 +1990,27 @@ class LBOModel:
         if year != 1:
             return
 
-        expected_sources = self.assumptions.equity_amount + sum(d.amount for d in self.assumptions.debt_instruments)
+        expected_sources = self.assumptions.equity_amount + sum(
+            d.amount for d in self.assumptions.debt_instruments
+        )
         expected_uses = (
-            self.equity_value + self.assumptions.existing_debt + self.transaction_expenses + self.financing_fees
+            self.equity_value
+            + self.assumptions.existing_debt
+            + self.transaction_expenses
+            + self.financing_fees
         )
         first_year_debt_repayment = sum(
-            self.debt_schedule[debt.name]["principal_paid"][0] for debt in self.assumptions.debt_instruments
+            self.debt_schedule[debt.name]["principal_paid"][0]
+            for debt in self.assumptions.debt_instruments
         )
 
         net_transaction = expected_sources - expected_uses - first_year_debt_repayment
         cfo_year1 = self.cash_flow.loc["Cash Flow from Operations", year]
         capex_year1 = self.cash_flow.loc["Cash Flow from Investing", year]
 
-        expected_ending_cash = self.assumptions.existing_cash + net_transaction + cfo_year1 + capex_year1
+        expected_ending_cash = (
+            self.assumptions.existing_cash + net_transaction + cfo_year1 + capex_year1
+        )
 
         if abs(expected_ending_cash - ending_cash) > LBOConstants.CASH_FLOW_TOLERANCE:
             logger.warning(
@@ -1894,13 +2075,19 @@ class LBOModel:
         # Check exit EBITDA growth aligns with revenue growth assumptions
         entry_ebitda = self.assumptions.entry_ebitda
         exit_ebitda = returns["exit_ebitda"]
-        ebitda_growth = (exit_ebitda / entry_ebitda) ** (1.0 / (exit_year - 1)) - 1 if exit_year > 1 else 0
+        ebitda_growth = (
+            (exit_ebitda / entry_ebitda) ** (1.0 / (exit_year - 1)) - 1 if exit_year > 1 else 0
+        )
 
         # Estimate expected EBITDA growth from revenue growth (simplified check)
         if exit_year > 1:
-            avg_revenue_growth = sum(self.assumptions.revenue_growth_rate[: exit_year - 1]) / (exit_year - 1)
+            avg_revenue_growth = sum(self.assumptions.revenue_growth_rate[: exit_year - 1]) / (
+                exit_year - 1
+            )
             # EBITDA should grow roughly in line with revenue (simplified check)
-            if abs(ebitda_growth - avg_revenue_growth) > 0.10:  # Allow 10% difference for margin changes
+            if (
+                abs(ebitda_growth - avg_revenue_growth) > 0.10
+            ):  # Allow 10% difference for margin changes
                 logger.debug(
                     f"Exit EBITDA growth ({ebitda_growth:.1%}) differs from average revenue growth "
                     f"({avg_revenue_growth:.1%}). This may be due to margin expansion/compression."
@@ -1952,7 +2139,9 @@ class LBOModel:
         # Validate Returns Analysis
         self._validate_returns_analysis()
 
-    def _calculate_irr(self, cash_flows: List[float], guess: float = 0.1, max_iter: int = None) -> float:
+    def _calculate_irr(
+        self, cash_flows: List[float], guess: float = 0.1, max_iter: int = None
+    ) -> float:
         """Calculate IRR using Newton-Raphson method."""
         if len(cash_flows) < 2:
             return 0.0
@@ -1982,7 +2171,9 @@ class LBOModel:
 
     # ==================== AI INTEGRATION METHODS ====================
 
-    def validate_with_ai(self, industry: Optional[str] = None, api_key: Optional[str] = None) -> Dict:
+    def validate_with_ai(
+        self, industry: Optional[str] = None, api_key: Optional[str] = None
+    ) -> Dict:
         """
         Validate model assumptions using AI.
 
@@ -2017,10 +2208,14 @@ class LBOModel:
                 "details": result.details,
             }
         except ImportError:
-            logger.warning("lbo_ai_validator not available. Install openai package and set API key.")
+            logger.warning(
+                "lbo_ai_validator not available. Install openai package and set API key."
+            )
             return {"error": "AI validator not available"}
 
-    def review_generated_model_ai(self, excel_file_path: str, api_key: Optional[str] = None) -> Dict:
+    def review_generated_model_ai(
+        self, excel_file_path: str, api_key: Optional[str] = None
+    ) -> Dict:
         """
         Review generated Excel model using AI.
 
@@ -2071,7 +2266,9 @@ class LBOModel:
             logger.error(f"AI review error: {e}")
             return {"error": str(e)}
 
-    def generate_scenarios_with_ai(self, industry: Optional[str] = None, api_key: Optional[str] = None) -> Dict:
+    def generate_scenarios_with_ai(
+        self, industry: Optional[str] = None, api_key: Optional[str] = None
+    ) -> Dict:
         """
         Generate sensitivity scenarios using AI.
 
@@ -2162,7 +2359,7 @@ class LBOModel:
         try:
             validator = LBOModelAIValidator(api_key=api_key)
             assumptions_dict = self._assumptions_to_dict()
-            industry = self.assumptions.industry if hasattr(self.assumptions, 'industry') else None
+            industry = self.assumptions.industry if hasattr(self.assumptions, "industry") else None
             benchmark = validator.benchmark_against_market(assumptions_dict, industry)
 
             logger.info("AI benchmarking completed")
@@ -2196,7 +2393,9 @@ class LBOModel:
         try:
             validator = LBOModelAIValidator(api_key=api_key)
             assumptions_dict = self._assumptions_to_dict()
-            documentation = validator.generate_model_documentation(excel_file_path, assumptions_dict)
+            documentation = validator.generate_model_documentation(
+                excel_file_path, assumptions_dict
+            )
 
             logger.info("AI documentation generation completed")
 
@@ -2229,7 +2428,9 @@ class LBOModel:
         try:
             validator = LBOModelAIValidator(api_key=api_key)
             assumptions_dict = self._assumptions_to_dict()
-            diagnosis = validator.diagnose_model_errors(error_message, assumptions_dict, stack_trace)
+            diagnosis = validator.diagnose_model_errors(
+                error_message, assumptions_dict, stack_trace
+            )
 
             logger.info("AI error diagnosis completed")
 
@@ -2340,7 +2541,9 @@ class LBOModel:
 
         # Get exit EBITDA from income statement (validates alignment)
         if "EBITDA" not in self.income_statement.index:
-            raise LBOCalculationError("EBITDA not found in income statement. Model may not be fully built.")
+            raise LBOCalculationError(
+                "EBITDA not found in income statement. Model may not be fully built."
+            )
         exit_ebitda = self.income_statement.loc["EBITDA", exit_year]
 
         # Calculate exit EV using exit multiple from assumptions
@@ -2348,9 +2551,13 @@ class LBOModel:
 
         # Get exit debt and cash from balance sheet (validates alignment)
         if "Total Debt" not in self.balance_sheet.index:
-            raise LBOCalculationError("Total Debt not found in balance sheet. Model may not be fully built.")
+            raise LBOCalculationError(
+                "Total Debt not found in balance sheet. Model may not be fully built."
+            )
         if "Cash" not in self.balance_sheet.index:
-            raise LBOCalculationError("Cash not found in balance sheet. Model may not be fully built.")
+            raise LBOCalculationError(
+                "Cash not found in balance sheet. Model may not be fully built."
+            )
 
         exit_debt = self.balance_sheet.loc["Total Debt", exit_year]
         exit_cash = self.balance_sheet.loc["Cash", exit_year]
@@ -2374,7 +2581,9 @@ class LBOModel:
         # IRR calculation: Equity investment at time 0, exit proceeds at exit year
         # Simplified approach: assumes no intermediate cash flows (no dividends)
         cash_flows = [-equity_invested] + [0] * (exit_year - 1) + [exit_equity_value]
-        irr = self._calculate_irr(cash_flows) if len(cash_flows) > 1 and equity_invested > 0 else 0.0
+        irr = (
+            self._calculate_irr(cash_flows) if len(cash_flows) > 1 and equity_invested > 0 else 0.0
+        )
 
         # Validate exit EBITDA aligns with assumptions (should match entry EBITDA growth)
         if exit_year == 1:
@@ -2405,7 +2614,9 @@ class LBOModel:
         """
         return self._validate_debt_schedule()
 
-    def _run_ai_validation_before_export(self, industry: Optional[str], api_key: Optional[str]) -> None:
+    def _run_ai_validation_before_export(
+        self, industry: Optional[str], api_key: Optional[str]
+    ) -> None:
         """Run AI validation before export if requested."""
         logger.info("Running AI validation before export...")
         validation_result = self.validate_with_ai(industry=industry, api_key=api_key)

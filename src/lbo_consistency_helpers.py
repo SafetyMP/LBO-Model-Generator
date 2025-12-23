@@ -59,7 +59,9 @@ class LBOConsistencyHelper:
             for i, debt in enumerate(standardized["debt_instruments"], 1):
                 if "priority" not in debt:
                     debt["priority"] = i
-                    logger.debug(f"Added priority {i} to debt instrument {debt.get('name', 'Unknown')}")
+                    logger.debug(
+                        f"Added priority {i} to debt instrument {debt.get('name', 'Unknown')}"
+                    )
 
         return standardized
 
@@ -77,16 +79,31 @@ class LBOConsistencyHelper:
         issues = []
 
         # Check required fields
-        required_fields = ["entry_ebitda", "entry_multiple", "revenue_growth_rate", "debt_instruments"]
+        required_fields = [
+            "entry_ebitda",
+            "entry_multiple",
+            "revenue_growth_rate",
+            "debt_instruments",
+        ]
         for field in required_fields:
             if field not in config:
-                issues.append({"severity": "error", "field": field, "message": f"Missing required field: {field}"})
+                issues.append(
+                    {
+                        "severity": "error",
+                        "field": field,
+                        "message": f"Missing required field: {field}",
+                    }
+                )
 
         # Validate entry_ebitda
         if "entry_ebitda" in config:
             if config["entry_ebitda"] <= 0:
                 issues.append(
-                    {"severity": "error", "field": "entry_ebitda", "message": "entry_ebitda must be positive"}
+                    {
+                        "severity": "error",
+                        "field": "entry_ebitda",
+                        "message": "entry_ebitda must be positive",
+                    }
                 )
 
         # Validate entry_multiple
@@ -191,17 +208,23 @@ class LBOConsistencyHelper:
             # If include_sub_debt is True and no sub debt exists, add placeholder
             if include_sub_debt and not has_sub:
                 # Find senior debt to determine appropriate sub debt
-                senior_debt = next((d for d in standardized["debt_instruments"] if "Senior" in d.get("name", "")), None)
+                senior_debt = next(
+                    (d for d in standardized["debt_instruments"] if "Senior" in d.get("name", "")),
+                    None,
+                )
                 if senior_debt:
                     sub_debt = {
                         "name": "Subordinated Debt",
-                        "interest_rate": senior_debt.get("interest_rate", 0.10) + 0.03,  # Typically 3% higher
+                        "interest_rate": senior_debt.get("interest_rate", 0.10)
+                        + 0.03,  # Typically 3% higher
                         "ebitda_multiple": 0.0,  # Will be set to 0 if not needed
                         "amortization_schedule": "bullet",
                         "priority": 2,
                     }
                     standardized["debt_instruments"].append(sub_debt)
-                    logger.info(f"Added placeholder subordinated debt to {standardized.get('company_name', 'Unknown')}")
+                    logger.info(
+                        f"Added placeholder subordinated debt to {standardized.get('company_name', 'Unknown')}"
+                    )
 
         return standardized
 
@@ -227,12 +250,16 @@ class LBOConsistencyHelper:
             elif key not in config2:
                 differences["missing_in_config2"].append(key)
             elif config1[key] != config2[key]:
-                differences["different_values"].append({"key": key, "config1": config1[key], "config2": config2[key]})
+                differences["different_values"].append(
+                    {"key": key, "config1": config1[key], "config2": config2[key]}
+                )
 
         return differences
 
     @staticmethod
-    def standardize_all_configs(config_files: Dict[str, str], output_dir: Optional[str] = None) -> Dict[str, Dict]:
+    def standardize_all_configs(
+        config_files: Dict[str, str], output_dir: Optional[str] = None
+    ) -> Dict[str, Dict]:
         """
         Standardize all configuration files.
 
