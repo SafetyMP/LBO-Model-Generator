@@ -12,7 +12,7 @@ from src.lbo_engine import calculate_lbo
 def load_test_case(config_path: str) -> Optional[Dict]:
     """Load test case configuration."""
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             return json.load(f)
     except FileNotFoundError:
         return None
@@ -65,11 +65,13 @@ def calculate_sensitivity_analysis(
                     transaction_expenses_pct=transaction_expenses_pct,
                     financing_fees_pct=financing_fees_pct,
                 )
-                results_list.append({
-                    "Exit Multiple": f"{val:.2f}x",
-                    "IRR": result['irr'],
-                    "MOIC": result['moic'],
-                })
+                results_list.append(
+                    {
+                        "Exit Multiple": f"{val:.2f}x",
+                        "IRR": result["irr"],
+                        "MOIC": result["moic"],
+                    }
+                )
             except (KeyError, ValueError, TypeError):
                 continue
             except Exception as e:
@@ -96,11 +98,13 @@ def calculate_sensitivity_analysis(
                     transaction_expenses_pct=transaction_expenses_pct,
                     financing_fees_pct=financing_fees_pct,
                 )
-                results_list.append({
-                    "Entry Multiple": f"{val:.2f}x",
-                    "IRR": result['irr'],
-                    "MOIC": result['moic'],
-                })
+                results_list.append(
+                    {
+                        "Entry Multiple": f"{val:.2f}x",
+                        "IRR": result["irr"],
+                        "MOIC": result["moic"],
+                    }
+                )
             except (KeyError, ValueError, TypeError):
                 continue
             except Exception as e:
@@ -127,11 +131,13 @@ def calculate_sensitivity_analysis(
                     transaction_expenses_pct=transaction_expenses_pct,
                     financing_fees_pct=financing_fees_pct,
                 )
-                results_list.append({
-                    "Revenue Growth": f"{val*100:.1f}%",
-                    "IRR": result['irr'],
-                    "MOIC": result['moic'],
-                })
+                results_list.append(
+                    {
+                        "Revenue Growth": f"{val*100:.1f}%",
+                        "IRR": result["irr"],
+                        "MOIC": result["moic"],
+                    }
+                )
             except (KeyError, ValueError, TypeError):
                 continue
             except Exception as e:
@@ -140,7 +146,10 @@ def calculate_sensitivity_analysis(
 
     elif variable == "EBITDA Margin":
         base_value = base_ebitda_margin
-        values = [max(0.01, min(0.99, base_value * (1 - variation_range + i * step_size))) for i in range(steps)]
+        values = [
+            max(0.01, min(0.99, base_value * (1 - variation_range + i * step_size)))
+            for i in range(steps)
+        ]
         for val in values:
             try:
                 result = calculate_lbo(
@@ -158,11 +167,13 @@ def calculate_sensitivity_analysis(
                     transaction_expenses_pct=transaction_expenses_pct,
                     financing_fees_pct=financing_fees_pct,
                 )
-                results_list.append({
-                    "EBITDA Margin": f"{val*100:.1f}%",
-                    "IRR": result['irr'],
-                    "MOIC": result['moic'],
-                })
+                results_list.append(
+                    {
+                        "EBITDA Margin": f"{val*100:.1f}%",
+                        "IRR": result["irr"],
+                        "MOIC": result["moic"],
+                    }
+                )
             except (KeyError, ValueError, TypeError):
                 continue
             except Exception as e:
@@ -171,7 +182,9 @@ def calculate_sensitivity_analysis(
 
     elif variable == "Leverage Ratio":
         base_value = base_leverage_ratio
-        values = [max(0.5, base_value * (1 - variation_range + i * step_size)) for i in range(steps)]
+        values = [
+            max(0.5, base_value * (1 - variation_range + i * step_size)) for i in range(steps)
+        ]
         for val in values:
             try:
                 result = calculate_lbo(
@@ -189,11 +202,13 @@ def calculate_sensitivity_analysis(
                     transaction_expenses_pct=transaction_expenses_pct,
                     financing_fees_pct=financing_fees_pct,
                 )
-                results_list.append({
-                    "Leverage Ratio": f"{val:.2f}x",
-                    "IRR": result['irr'],
-                    "MOIC": result['moic'],
-                })
+                results_list.append(
+                    {
+                        "Leverage Ratio": f"{val:.2f}x",
+                        "IRR": result["irr"],
+                        "MOIC": result["moic"],
+                    }
+                )
             except (KeyError, ValueError, TypeError):
                 continue
             except Exception as e:

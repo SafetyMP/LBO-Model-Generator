@@ -11,7 +11,7 @@ st.set_page_config(
     page_title="Assumptions",
     page_icon="⚙️",
     layout="wide",
-    initial_sidebar_state="expanded"  # Force sidebar to be open
+    initial_sidebar_state="expanded",  # Force sidebar to be open
 )
 
 from streamlit_modules.app_config import initialize_session_state, get_openai_api_key
@@ -39,12 +39,20 @@ if selected_test != "None":
     test_config = load_test_case(test_cases[selected_test])
     if test_config:
         entry_multiple_val = float(test_config.get("entry_multiple", 10.0))
-        leverage_ratio_val = float(test_config.get("debt_instruments", [{}])[0].get("ebitda_multiple", 4.0)) if test_config.get("debt_instruments") else 4.0
+        leverage_ratio_val = (
+            float(test_config.get("debt_instruments", [{}])[0].get("ebitda_multiple", 4.0))
+            if test_config.get("debt_instruments")
+            else 4.0
+        )
         rev_growth_val = float(test_config.get("revenue_growth_rate", [0.05])[0])
         ebitda_margin_val = 0.20  # Default
         entry_ebitda_val = float(test_config.get("entry_ebitda", 10000.0))
         exit_multiple_val = float(test_config.get("exit_multiple", 10.0))
-        interest_rate_val = float(test_config.get("debt_instruments", [{}])[0].get("interest_rate", 0.08)) if test_config.get("debt_instruments") else 0.08
+        interest_rate_val = (
+            float(test_config.get("debt_instruments", [{}])[0].get("interest_rate", 0.08))
+            if test_config.get("debt_instruments")
+            else 0.08
+        )
         tax_rate_val = float(test_config.get("tax_rate", 0.25))
     else:
         entry_multiple_val = 10.0
@@ -57,51 +65,69 @@ if selected_test != "None":
         tax_rate_val = 0.25
 else:
     # Use defaults or session state
-    entry_multiple_val = st.session_state.current_inputs.get('entry_multiple', 10.0)
-    leverage_ratio_val = st.session_state.current_inputs.get('leverage_ratio', 4.0)
-    rev_growth_val = st.session_state.current_inputs.get('rev_growth', 0.05)
-    ebitda_margin_val = st.session_state.current_inputs.get('ebitda_margin', 0.20)
-    entry_ebitda_val = st.session_state.current_inputs.get('entry_ebitda', 10000.0)
-    exit_multiple_val = st.session_state.current_inputs.get('exit_multiple', 10.0)
-    interest_rate_val = st.session_state.current_inputs.get('interest_rate', 0.08)
-    tax_rate_val = st.session_state.current_inputs.get('tax_rate', 0.25)
+    entry_multiple_val = st.session_state.current_inputs.get("entry_multiple", 10.0)
+    leverage_ratio_val = st.session_state.current_inputs.get("leverage_ratio", 4.0)
+    rev_growth_val = st.session_state.current_inputs.get("rev_growth", 0.05)
+    ebitda_margin_val = st.session_state.current_inputs.get("ebitda_margin", 0.20)
+    entry_ebitda_val = st.session_state.current_inputs.get("entry_ebitda", 10000.0)
+    exit_multiple_val = st.session_state.current_inputs.get("exit_multiple", 10.0)
+    interest_rate_val = st.session_state.current_inputs.get("interest_rate", 0.08)
+    tax_rate_val = st.session_state.current_inputs.get("tax_rate", 0.25)
 
 # Sidebar for Inputs
 with st.sidebar:
     st.header("Entry Assumptions")
     entry_multiple = st.slider(
         "Entry EBITDA Multiple",
-        5.0, 15.0, entry_multiple_val, 0.5,
-        help="Purchase price multiple. Typical range: 5-12x for most industries."
+        5.0,
+        15.0,
+        entry_multiple_val,
+        0.5,
+        help="Purchase price multiple. Typical range: 5-12x for most industries.",
     )
     leverage_ratio = st.slider(
         "Debt/EBITDA (Leverage)",
-        2.0, 7.0, leverage_ratio_val, 0.1,
-        help="Total debt as multiple of EBITDA. Typical range: 3-5x."
+        2.0,
+        7.0,
+        leverage_ratio_val,
+        0.1,
+        help="Total debt as multiple of EBITDA. Typical range: 3-5x.",
     )
 
     st.header("Operating Projections")
-    rev_growth = st.slider(
-        "Annual Revenue Growth (%)",
-        0.0, 20.0, rev_growth_val * 100, 0.5,
-        help="Expected annual revenue growth rate."
-    ) / 100
-    ebitda_margin = st.slider(
-        "EBITDA Margin (%)",
-        10.0, 40.0, ebitda_margin_val * 100, 0.5,
-        help="EBITDA as percentage of revenue."
-    ) / 100
+    rev_growth = (
+        st.slider(
+            "Annual Revenue Growth (%)",
+            0.0,
+            20.0,
+            rev_growth_val * 100,
+            0.5,
+            help="Expected annual revenue growth rate.",
+        )
+        / 100
+    )
+    ebitda_margin = (
+        st.slider(
+            "EBITDA Margin (%)",
+            10.0,
+            40.0,
+            ebitda_margin_val * 100,
+            0.5,
+            help="EBITDA as percentage of revenue.",
+        )
+        / 100
+    )
 
     st.header("Advanced Options")
     entry_ebitda = st.number_input(
         "Entry EBITDA ($)",
-        min_value=1000.0, value=entry_ebitda_val, step=1000.0,
-        help="Company's EBITDA at entry."
+        min_value=1000.0,
+        value=entry_ebitda_val,
+        step=1000.0,
+        help="Company's EBITDA at entry.",
     )
     exit_multiple = st.slider(
-        "Exit EBITDA Multiple",
-        5.0, 15.0, exit_multiple_val, 0.5,
-        help="Expected exit multiple."
+        "Exit EBITDA Multiple", 5.0, 15.0, exit_multiple_val, 0.5, help="Expected exit multiple."
     )
 
     # Debt Structure
@@ -109,25 +135,35 @@ with st.sidebar:
         debt_structure_type = st.radio(
             "Debt Structure:",
             ["Single Instrument", "Senior + Subordinated"],
-            help="Choose between single debt instrument or multiple tranches"
+            help="Choose between single debt instrument or multiple tranches",
         )
 
         if debt_structure_type == "Single Instrument":
-            interest_rate = st.slider(
-                "Debt Interest Rate (%)",
-                4.0, 15.0, interest_rate_val * 100, 0.5,
-                help="Weighted average interest rate on debt."
-            ) / 100
+            interest_rate = (
+                st.slider(
+                    "Debt Interest Rate (%)",
+                    4.0,
+                    15.0,
+                    interest_rate_val * 100,
+                    0.5,
+                    help="Weighted average interest rate on debt.",
+                )
+                / 100
+            )
             debt_instruments = None
         else:
             st.markdown("**Senior Debt**")
             senior_pct = st.slider("Senior Debt (% of Total Debt)", 50.0, 90.0, 70.0, 5.0) / 100
             senior_rate = st.slider("Senior Interest Rate (%)", 4.0, 10.0, 7.0, 0.25) / 100
-            senior_schedule = st.selectbox("Senior Amortization", ["cash_flow_sweep", "amortizing", "bullet"], index=0)
+            senior_schedule = st.selectbox(
+                "Senior Amortization", ["cash_flow_sweep", "amortizing", "bullet"], index=0
+            )
 
             st.markdown("**Subordinated Debt**")
             sub_rate = st.slider("Subordinated Interest Rate (%)", 8.0, 15.0, 12.0, 0.25) / 100
-            sub_schedule = st.selectbox("Subordinated Amortization", ["bullet", "cash_flow_sweep", "amortizing"], index=0)
+            sub_schedule = st.selectbox(
+                "Subordinated Amortization", ["bullet", "cash_flow_sweep", "amortizing"], index=0
+            )
 
             debt_instruments = {
                 "type": "multiple",
@@ -149,7 +185,9 @@ with st.sidebar:
 
     # Transaction Costs
     with st.expander("💰 Transaction Costs"):
-        transaction_expenses_pct = st.slider("Transaction Expenses (% of EV)", 0.0, 10.0, 3.0, 0.5) / 100
+        transaction_expenses_pct = (
+            st.slider("Transaction Expenses (% of EV)", 0.0, 10.0, 3.0, 0.5) / 100
+        )
         financing_fees_pct = st.slider("Financing Fees (% of Total Debt)", 0.0, 5.0, 2.0, 0.5) / 100
 
     # Performance & Cache Management
@@ -159,7 +197,11 @@ with st.sidebar:
 if st.button("🔄 Calculate LBO Model", type="primary", use_container_width=True):
     # Calculate debt instrument amounts if multiple instruments
     debt_instruments_list = None
-    if debt_instruments is not None and isinstance(debt_instruments, dict) and debt_instruments.get("type") == "multiple":
+    if (
+        debt_instruments is not None
+        and isinstance(debt_instruments, dict)
+        and debt_instruments.get("type") == "multiple"
+    ):
         total_debt = entry_ebitda * leverage_ratio
         senior_amount = total_debt * debt_instruments["senior_pct"]
         sub_amount = total_debt - senior_amount
@@ -179,7 +221,7 @@ if st.button("🔄 Calculate LBO Model", type="primary", use_container_width=Tru
                 "amortization_schedule": debt_instruments["sub_schedule"],
                 "amortization_periods": 5,
                 "priority": 2,
-            }
+            },
         ]
 
     with st.spinner("Calculating LBO model..."):
@@ -204,19 +246,19 @@ if st.button("🔄 Calculate LBO Model", type="primary", use_container_width=Tru
             # Store in session state
             st.session_state.current_results = results
             st.session_state.current_inputs = {
-                'entry_multiple': entry_multiple,
-                'leverage_ratio': leverage_ratio,
-                'rev_growth': rev_growth,
-                'ebitda_margin': ebitda_margin,
-                'entry_ebitda': entry_ebitda,
-                'exit_multiple': exit_multiple,
-                'interest_rate': interest_rate,
-                'tax_rate': tax_rate,
-                'dso': dso,
-                'dio': dio,
-                'dpo': dpo,
-                'transaction_expenses_pct': transaction_expenses_pct,
-                'financing_fees_pct': financing_fees_pct,
+                "entry_multiple": entry_multiple,
+                "leverage_ratio": leverage_ratio,
+                "rev_growth": rev_growth,
+                "ebitda_margin": ebitda_margin,
+                "entry_ebitda": entry_ebitda,
+                "exit_multiple": exit_multiple,
+                "interest_rate": interest_rate,
+                "tax_rate": tax_rate,
+                "dso": dso,
+                "dio": dio,
+                "dpo": dpo,
+                "transaction_expenses_pct": transaction_expenses_pct,
+                "financing_fees_pct": financing_fees_pct,
             }
 
             st.success("✅ Model calculated successfully! Navigate to Dashboard to see results.")

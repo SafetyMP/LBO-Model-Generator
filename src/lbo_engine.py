@@ -154,13 +154,18 @@ def calculate_lbo(
         for debt_name in model.debt_schedule.keys():
             debt_by_instrument[debt_name] = []
             # Add initial balance
-            if "ending_balance" in model.debt_schedule[debt_name] and len(model.debt_schedule[debt_name]["ending_balance"]) > 0:
+            if (
+                "ending_balance" in model.debt_schedule[debt_name]
+                and len(model.debt_schedule[debt_name]["ending_balance"]) > 0
+            ):
                 # Initial balance is the first ending balance (or we can calculate from amount)
                 initial_bal = model.debt_schedule[debt_name].get("amount", 0)
                 if initial_bal == 0 and len(model.debt_schedule[debt_name]["ending_balance"]) > 0:
                     # Try to infer from first year's starting balance
                     initial_bal = model.debt_schedule[debt_name]["ending_balance"][0] + (
-                        model.debt_schedule[debt_name].get("principal_payment", [0])[0] if "principal_payment" in model.debt_schedule[debt_name] else 0
+                        model.debt_schedule[debt_name].get("principal_payment", [0])[0]
+                        if "principal_payment" in model.debt_schedule[debt_name]
+                        else 0
                     )
                 debt_by_instrument[debt_name].append(initial_bal)
 
@@ -194,7 +199,9 @@ def calculate_lbo(
                 if model.debt_schedule and "Senior Debt" in model.debt_schedule:
                     year_idx = year - 1
                     if year_idx < len(model.debt_schedule["Senior Debt"]["ending_balance"]):
-                        debt_balance = model.debt_schedule["Senior Debt"]["ending_balance"][year_idx]
+                        debt_balance = model.debt_schedule["Senior Debt"]["ending_balance"][
+                            year_idx
+                        ]
                     else:
                         debt_balance = 0.0
                 else:
@@ -231,17 +238,27 @@ def calculate_lbo(
     # Extract financial statement data for visualizations
     financial_data = {}
     if "Revenue" in model.income_statement.index:
-        financial_data["revenue"] = [model.income_statement.loc["Revenue", year] for year in model.years]
+        financial_data["revenue"] = [
+            model.income_statement.loc["Revenue", year] for year in model.years
+        ]
     if "EBITDA" in model.income_statement.index:
-        financial_data["ebitda"] = [model.income_statement.loc["EBITDA", year] for year in model.years]
+        financial_data["ebitda"] = [
+            model.income_statement.loc["EBITDA", year] for year in model.years
+        ]
     if "Net Income" in model.income_statement.index:
-        financial_data["net_income"] = [model.income_statement.loc["Net Income", year] for year in model.years]
+        financial_data["net_income"] = [
+            model.income_statement.loc["Net Income", year] for year in model.years
+        ]
 
     # Extract cash flow data
     if "Cash Flow from Operations" in model.cash_flow.index:
-        financial_data["cfo"] = [model.cash_flow.loc["Cash Flow from Operations", year] for year in model.years]
+        financial_data["cfo"] = [
+            model.cash_flow.loc["Cash Flow from Operations", year] for year in model.years
+        ]
     if "Capital Expenditures" in model.cash_flow.index:
-        financial_data["capex"] = [abs(model.cash_flow.loc["Capital Expenditures", year]) for year in model.years]
+        financial_data["capex"] = [
+            abs(model.cash_flow.loc["Capital Expenditures", year]) for year in model.years
+        ]
         # Calculate FCF = CFO - CapEx
         if "cfo" in financial_data:
             financial_data["fcf"] = [
@@ -250,17 +267,28 @@ def calculate_lbo(
 
     # Extract working capital data
     if "Net Change in Working Capital" in model.cash_flow.index:
-        financial_data["wc_change"] = [model.cash_flow.loc["Net Change in Working Capital", year] for year in model.years]
+        financial_data["wc_change"] = [
+            model.cash_flow.loc["Net Change in Working Capital", year] for year in model.years
+        ]
     if "Change in Accounts Receivable" in model.cash_flow.index:
-        financial_data["ar_change"] = [model.cash_flow.loc["Change in Accounts Receivable", year] for year in model.years]
+        financial_data["ar_change"] = [
+            model.cash_flow.loc["Change in Accounts Receivable", year] for year in model.years
+        ]
     if "Change in Inventory" in model.cash_flow.index:
-        financial_data["inv_change"] = [model.cash_flow.loc["Change in Inventory", year] for year in model.years]
+        financial_data["inv_change"] = [
+            model.cash_flow.loc["Change in Inventory", year] for year in model.years
+        ]
     if "Change in Accounts Payable" in model.cash_flow.index:
-        financial_data["ap_change"] = [model.cash_flow.loc["Change in Accounts Payable", year] for year in model.years]
+        financial_data["ap_change"] = [
+            model.cash_flow.loc["Change in Accounts Payable", year] for year in model.years
+        ]
 
     # Extract balance sheet data for coverage ratios
     coverage_ratios = {}
-    if "EBITDA" in model.income_statement.index and "Interest Expense" in model.income_statement.index:
+    if (
+        "EBITDA" in model.income_statement.index
+        and "Interest Expense" in model.income_statement.index
+    ):
         for year in model.years:
             ebitda = model.income_statement.loc["EBITDA", year]
             interest = model.income_statement.loc["Interest Expense", year]
@@ -274,8 +302,15 @@ def calculate_lbo(
         for year_idx, year in enumerate(model.years):
             if year_idx > 0:
                 prev_year = model.years[year_idx - 1]
-                debt_repayment = model.balance_sheet.loc["Total Debt", prev_year] - model.balance_sheet.loc["Total Debt", year]
-                interest = model.income_statement.loc["Interest Expense", year] if "Interest Expense" in model.income_statement.index else 0
+                debt_repayment = (
+                    model.balance_sheet.loc["Total Debt", prev_year]
+                    - model.balance_sheet.loc["Total Debt", year]
+                )
+                interest = (
+                    model.income_statement.loc["Interest Expense", year]
+                    if "Interest Expense" in model.income_statement.index
+                    else 0
+                )
                 ebitda = model.income_statement.loc["EBITDA", year]
                 debt_service = interest + debt_repayment
                 if debt_service > 0:
@@ -284,9 +319,12 @@ def calculate_lbo(
                     coverage_ratios[f"debt_service_coverage_{year}"] = None
 
     # Create financial statements DataFrame
-    financial_df = pd.DataFrame({
-        "Year": [f"Year {i+1}" for i in range(len(model.years))],
-    }, index=[f"Year {i+1}" for i in range(len(model.years))])
+    financial_df = pd.DataFrame(
+        {
+            "Year": [f"Year {i+1}" for i in range(len(model.years))],
+        },
+        index=[f"Year {i+1}" for i in range(len(model.years))],
+    )
 
     for key, values in financial_data.items():
         if len(values) == len(model.years):
@@ -295,12 +333,19 @@ def calculate_lbo(
     financial_df = financial_df.set_index("Year")
 
     # Create coverage ratios DataFrame
-    coverage_df = pd.DataFrame({
-        "Year": [f"Year {i+1}" for i in range(len(model.years))],
-    }, index=[f"Year {i+1}" for i in range(len(model.years))])
+    coverage_df = pd.DataFrame(
+        {
+            "Year": [f"Year {i+1}" for i in range(len(model.years))],
+        },
+        index=[f"Year {i+1}" for i in range(len(model.years))],
+    )
 
-    interest_coverage = [coverage_ratios.get(f"interest_coverage_{year}", None) for year in model.years]
-    debt_service_coverage = [coverage_ratios.get(f"debt_service_coverage_{year}", None) for year in model.years]
+    interest_coverage = [
+        coverage_ratios.get(f"interest_coverage_{year}", None) for year in model.years
+    ]
+    debt_service_coverage = [
+        coverage_ratios.get(f"debt_service_coverage_{year}", None) for year in model.years
+    ]
 
     if any(x is not None for x in interest_coverage):
         coverage_df["Interest Coverage"] = interest_coverage

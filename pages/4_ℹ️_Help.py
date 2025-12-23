@@ -8,10 +8,7 @@ import streamlit as st
 
 # IMPORTANT: st.set_page_config() must be the FIRST Streamlit command
 st.set_page_config(
-    page_title="Help",
-    page_icon="ℹ️",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    page_title="Help", page_icon="ℹ️", layout="wide", initial_sidebar_state="expanded"
 )
 
 from streamlit_modules.app_config import initialize_session_state
@@ -21,15 +18,13 @@ initialize_session_state()
 
 st.title("ℹ️ Help & Documentation")
 
-help_tab1, help_tab2, help_tab3, help_tab4 = st.tabs([
-    "Getting Started",
-    "Understanding Metrics",
-    "Best Practices",
-    "FAQ"
-])
+help_tab1, help_tab2, help_tab3, help_tab4 = st.tabs(
+    ["Getting Started", "Understanding Metrics", "Best Practices", "FAQ"]
+)
 
 with help_tab1:
-    st.markdown("""
+    st.markdown(
+        """
     ## Getting Started Guide
 
     ### Step 1: Configure Assumptions
@@ -64,10 +59,12 @@ with help_tab1:
     - **Load Test Cases**: Use the dropdown in Assumptions to load example configurations
     - **Save Scenarios**: Use comparison features to save and compare multiple scenarios
     - **Export**: Download Excel models or JSON configurations
-    """)
+    """
+    )
 
 with help_tab2:
-    st.markdown("""
+    st.markdown(
+        """
     ## Understanding Key Metrics
 
     ### Returns Metrics
@@ -131,10 +128,12 @@ with help_tab2:
     - EBITDA / (Interest + Principal Payments)
     - Measures ability to service all debt obligations
     - Target: >1.25x minimum
-    """)
+    """
+    )
 
 with help_tab3:
-    st.markdown("""
+    st.markdown(
+        """
     ## Best Practices
 
     ### Assumption Setting
@@ -206,10 +205,12 @@ with help_tab3:
     ❌ **Unrealistic Exit Multiple**
     - Assuming significant multiple expansion
     - Solution: Be conservative, base on comparables
-    """)
+    """
+    )
 
 with help_tab4:
-    st.markdown("""
+    st.markdown(
+        """
     ## Frequently Asked Questions
 
     ### General Questions
@@ -269,8 +270,11 @@ with help_tab4:
 
     **Q: What is a tornado chart?**
     A: A tornado chart shows which assumptions have the greatest impact on returns, sorted by magnitude of impact.
-    """)
+    """
+    )
 
     st.markdown("---")
     st.markdown("### Still Have Questions?")
-    st.info("💡 Check the other help tabs for more detailed information, or review the tooltips on each input field.")
+    st.info(
+        "💡 Check the other help tabs for more detailed information, or review the tooltips on each input field."
+    )

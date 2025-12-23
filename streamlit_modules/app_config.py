@@ -9,6 +9,7 @@ from typing import Optional
 # AI Features (optional - requires OpenAI API key)
 try:
     from src.lbo_ai_validator import LBOModelAIValidator
+
     AI_AVAILABLE = True
 except ImportError:
     AI_AVAILABLE = False
@@ -33,11 +34,11 @@ def get_openai_api_key() -> Optional[str]:
 
 def initialize_session_state():
     """Initialize session state variables."""
-    if 'saved_scenarios' not in st.session_state:
+    if "saved_scenarios" not in st.session_state:
         st.session_state.saved_scenarios = {}
 
-    if 'current_results' not in st.session_state:
+    if "current_results" not in st.session_state:
         st.session_state.current_results = None
 
-    if 'current_inputs' not in st.session_state:
+    if "current_inputs" not in st.session_state:
         st.session_state.current_inputs = {}

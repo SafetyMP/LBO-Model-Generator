@@ -17,7 +17,9 @@ def clear_cache():
 
 def show_cache_status():
     """Display cache status information."""
-    st.info("💡 Cache helps improve performance by storing calculation results. Clear cache if you need fresh calculations.")
+    st.info(
+        "💡 Cache helps improve performance by storing calculation results. Clear cache if you need fresh calculations."
+    )
 
 
 def performance_monitor(func: Callable) -> Callable:
@@ -29,32 +31,34 @@ def performance_monitor(func: Callable) -> Callable:
         def my_function():
             ...
     """
+
     def wrapper(*args, **kwargs):
         start_time = time.time()
         result = func(*args, **kwargs)
         elapsed = time.time() - start_time
 
-        if 'performance_log' not in st.session_state:
+        if "performance_log" not in st.session_state:
             st.session_state.performance_log = []
 
-        st.session_state.performance_log.append({
-            'function': func.__name__,
-            'elapsed': elapsed,
-            'timestamp': time.time()
-        })
+        st.session_state.performance_log.append(
+            {"function": func.__name__, "elapsed": elapsed, "timestamp": time.time()}
+        )
 
         return result
+
     return wrapper
 
 
 def show_performance_info():
     """Display performance information."""
-    if 'performance_log' in st.session_state and st.session_state.performance_log:
+    if "performance_log" in st.session_state and st.session_state.performance_log:
         latest = st.session_state.performance_log[-1]
         st.caption(f"⏱️ Last calculation took {latest['elapsed']:.2f} seconds")
 
         if len(st.session_state.performance_log) > 1:
-            avg_time = sum(log['elapsed'] for log in st.session_state.performance_log[-5:]) / min(5, len(st.session_state.performance_log))
+            avg_time = sum(log["elapsed"] for log in st.session_state.performance_log[-5:]) / min(
+                5, len(st.session_state.performance_log)
+            )
             st.caption(f"📊 Average (last 5): {avg_time:.2f} seconds")
 
 
@@ -76,9 +80,11 @@ def add_cache_management_ui():
         show_performance_info()
 
         st.markdown("**Performance Tips**")
-        st.markdown("""
+        st.markdown(
+            """
         - Cache stores calculation results for faster access
         - Calculations are cached based on input parameters
         - Clear cache if you need fresh calculations
         - Use the Calculate button to trigger new calculations
-        """)
+        """
+        )

@@ -60,7 +60,7 @@ def calculate_break_even_exit_multiple(
                 debt_instruments=debt_instruments,
             )
 
-            current_irr = result['irr']
+            current_irr = result["irr"]
 
             if abs(current_irr - target_irr) < tolerance:
                 return mid
@@ -127,7 +127,7 @@ def calculate_break_even_growth_rate(
                 debt_instruments=debt_instruments,
             )
 
-            current_irr = result['irr']
+            current_irr = result["irr"]
 
             if abs(current_irr - target_irr) < tolerance:
                 return mid
@@ -192,7 +192,7 @@ def calculate_break_even_margin(
                 debt_instruments=debt_instruments,
             )
 
-            current_irr = result['irr']
+            current_irr = result["irr"]
 
             if abs(current_irr - target_irr) < tolerance:
                 return mid
@@ -222,54 +222,54 @@ def run_break_even_analysis(
     results = {}
 
     with st.spinner("Calculating break-even exit multiple..."):
-        results['exit_multiple'] = calculate_break_even_exit_multiple(
-            entry_multiple=inputs.get('entry_multiple', 10.0),
-            leverage_ratio=inputs.get('leverage_ratio', 4.0),
-            rev_growth=inputs.get('rev_growth', 0.05),
-            ebitda_margin=inputs.get('ebitda_margin', 0.20),
-            entry_ebitda=inputs.get('entry_ebitda', 10000.0),
+        results["exit_multiple"] = calculate_break_even_exit_multiple(
+            entry_multiple=inputs.get("entry_multiple", 10.0),
+            leverage_ratio=inputs.get("leverage_ratio", 4.0),
+            rev_growth=inputs.get("rev_growth", 0.05),
+            ebitda_margin=inputs.get("ebitda_margin", 0.20),
+            entry_ebitda=inputs.get("entry_ebitda", 10000.0),
             target_irr=target_irr,
-            interest_rate=inputs.get('interest_rate', 0.08),
-            tax_rate=inputs.get('tax_rate', 0.25),
-            dso=inputs.get('dso', 45.0),
-            dio=inputs.get('dio', 30.0),
-            dpo=inputs.get('dpo', 30.0),
-            transaction_expenses_pct=inputs.get('transaction_expenses_pct', 0.03),
-            financing_fees_pct=inputs.get('financing_fees_pct', 0.02),
+            interest_rate=inputs.get("interest_rate", 0.08),
+            tax_rate=inputs.get("tax_rate", 0.25),
+            dso=inputs.get("dso", 45.0),
+            dio=inputs.get("dio", 30.0),
+            dpo=inputs.get("dpo", 30.0),
+            transaction_expenses_pct=inputs.get("transaction_expenses_pct", 0.03),
+            financing_fees_pct=inputs.get("financing_fees_pct", 0.02),
         )
 
     with st.spinner("Calculating break-even growth rate..."):
-        results['growth_rate'] = calculate_break_even_growth_rate(
-            entry_multiple=inputs.get('entry_multiple', 10.0),
-            leverage_ratio=inputs.get('leverage_ratio', 4.0),
-            ebitda_margin=inputs.get('ebitda_margin', 0.20),
-            entry_ebitda=inputs.get('entry_ebitda', 10000.0),
-            exit_multiple=inputs.get('exit_multiple', 10.0),
+        results["growth_rate"] = calculate_break_even_growth_rate(
+            entry_multiple=inputs.get("entry_multiple", 10.0),
+            leverage_ratio=inputs.get("leverage_ratio", 4.0),
+            ebitda_margin=inputs.get("ebitda_margin", 0.20),
+            entry_ebitda=inputs.get("entry_ebitda", 10000.0),
+            exit_multiple=inputs.get("exit_multiple", 10.0),
             target_irr=target_irr,
-            interest_rate=inputs.get('interest_rate', 0.08),
-            tax_rate=inputs.get('tax_rate', 0.25),
-            dso=inputs.get('dso', 45.0),
-            dio=inputs.get('dio', 30.0),
-            dpo=inputs.get('dpo', 30.0),
-            transaction_expenses_pct=inputs.get('transaction_expenses_pct', 0.03),
-            financing_fees_pct=inputs.get('financing_fees_pct', 0.02),
+            interest_rate=inputs.get("interest_rate", 0.08),
+            tax_rate=inputs.get("tax_rate", 0.25),
+            dso=inputs.get("dso", 45.0),
+            dio=inputs.get("dio", 30.0),
+            dpo=inputs.get("dpo", 30.0),
+            transaction_expenses_pct=inputs.get("transaction_expenses_pct", 0.03),
+            financing_fees_pct=inputs.get("financing_fees_pct", 0.02),
         )
 
     with st.spinner("Calculating break-even margin..."):
-        results['margin'] = calculate_break_even_margin(
-            entry_multiple=inputs.get('entry_multiple', 10.0),
-            leverage_ratio=inputs.get('leverage_ratio', 4.0),
-            rev_growth=inputs.get('rev_growth', 0.05),
-            entry_ebitda=inputs.get('entry_ebitda', 10000.0),
-            exit_multiple=inputs.get('exit_multiple', 10.0),
+        results["margin"] = calculate_break_even_margin(
+            entry_multiple=inputs.get("entry_multiple", 10.0),
+            leverage_ratio=inputs.get("leverage_ratio", 4.0),
+            rev_growth=inputs.get("rev_growth", 0.05),
+            entry_ebitda=inputs.get("entry_ebitda", 10000.0),
+            exit_multiple=inputs.get("exit_multiple", 10.0),
             target_irr=target_irr,
-            interest_rate=inputs.get('interest_rate', 0.08),
-            tax_rate=inputs.get('tax_rate', 0.25),
-            dso=inputs.get('dso', 45.0),
-            dio=inputs.get('dio', 30.0),
-            dpo=inputs.get('dpo', 30.0),
-            transaction_expenses_pct=inputs.get('transaction_expenses_pct', 0.03),
-            financing_fees_pct=inputs.get('financing_fees_pct', 0.02),
+            interest_rate=inputs.get("interest_rate", 0.08),
+            tax_rate=inputs.get("tax_rate", 0.25),
+            dso=inputs.get("dso", 45.0),
+            dio=inputs.get("dio", 30.0),
+            dpo=inputs.get("dpo", 30.0),
+            transaction_expenses_pct=inputs.get("transaction_expenses_pct", 0.03),
+            financing_fees_pct=inputs.get("financing_fees_pct", 0.02),
         )
 
     return results

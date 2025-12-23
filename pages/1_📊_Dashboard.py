@@ -8,10 +8,7 @@ import streamlit as st
 
 # IMPORTANT: st.set_page_config() must be the FIRST Streamlit command
 st.set_page_config(
-    page_title="Dashboard",
-    page_icon="📊",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    page_title="Dashboard", page_icon="📊", layout="wide", initial_sidebar_state="expanded"
 )
 
 from streamlit_modules.app_config import initialize_session_state
@@ -48,16 +45,28 @@ if st.session_state.current_results:
     # Entry vs Exit Comparison
     st.subheader("📈 Entry vs Exit Comparison")
     comp_col1, comp_col2, comp_col3 = st.columns(3)
-    ev_change = ((results['exit_ev'] - results['entry_ev']) / results['entry_ev']) * 100
-    comp_col1.metric("EV Change", f"{ev_change:+.1f}%",
-                    f"${results['entry_ev']/1_000_000:.1f}M → ${results['exit_ev']/1_000_000:.1f}M")
-    ebitda_change = ((results['exit_ebitda'] - results['entry_ebitda']) / results['entry_ebitda']) * 100
-    comp_col2.metric("EBITDA Change", f"{ebitda_change:+.1f}%",
-                    f"${results['entry_ebitda']/1_000_000:.1f}M → ${results['exit_ebitda']/1_000_000:.1f}M")
+    ev_change = ((results["exit_ev"] - results["entry_ev"]) / results["entry_ev"]) * 100
+    comp_col1.metric(
+        "EV Change",
+        f"{ev_change:+.1f}%",
+        f"${results['entry_ev']/1_000_000:.1f}M → ${results['exit_ev']/1_000_000:.1f}M",
+    )
+    ebitda_change = (
+        (results["exit_ebitda"] - results["entry_ebitda"]) / results["entry_ebitda"]
+    ) * 100
+    comp_col2.metric(
+        "EBITDA Change",
+        f"{ebitda_change:+.1f}%",
+        f"${results['entry_ebitda']/1_000_000:.1f}M → ${results['exit_ebitda']/1_000_000:.1f}M",
+    )
 
     # Get leverage ratio from inputs
-    leverage_ratio = st.session_state.current_inputs.get('leverage_ratio', 4.0)
-    debt_paydown_pct = (results['debt_paid'] * 1_000_000 / (results['entry_ev'] * leverage_ratio)) * 100 if leverage_ratio > 0 else 0
+    leverage_ratio = st.session_state.current_inputs.get("leverage_ratio", 4.0)
+    debt_paydown_pct = (
+        (results["debt_paid"] * 1_000_000 / (results["entry_ev"] * leverage_ratio)) * 100
+        if leverage_ratio > 0
+        else 0
+    )
     comp_col3.metric("Debt Paydown %", f"{debt_paydown_pct:.1f}%")
 
     # PDF Export

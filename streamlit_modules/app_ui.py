@@ -41,7 +41,7 @@ def render_sidebar_footer():
     st.sidebar.caption("Professional LBO analysis tool")
 
     # Show current model status
-    if st.session_state.get('current_results'):
+    if st.session_state.get("current_results"):
         st.sidebar.success("✅ Model Calculated")
     else:
         st.sidebar.info("👈 Configure & Calculate")

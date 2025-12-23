@@ -11,7 +11,7 @@ st.set_page_config(
     page_title="LBO Deal Screener",
     page_icon="🚀",
     layout="wide",
-    initial_sidebar_state="expanded"  # Force sidebar to be open
+    initial_sidebar_state="expanded",  # Force sidebar to be open
 )
 
 from streamlit_modules.app_config import initialize_session_state, get_openai_api_key, AI_AVAILABLE
@@ -24,12 +24,15 @@ OPENAI_API_KEY = get_openai_api_key()
 if OPENAI_API_KEY:
     st.success("✅ OpenAI API key configured. AI features are enabled.")
 else:
-    st.warning("⚠️ OpenAI API key not found. AI features will be disabled. Set OPENAI_API_KEY environment variable or configure in .streamlit/secrets.toml")
+    st.warning(
+        "⚠️ OpenAI API key not found. AI features will be disabled. Set OPENAI_API_KEY environment variable or configure in .streamlit/secrets.toml"
+    )
 
 # Main page content (will be shown if user navigates to home)
 st.title("🚀 Professional LBO Deal Screener")
 
-st.markdown("""
+st.markdown(
+    """
 Welcome to the LBO Deal Screener! This tool helps you analyze leveraged buyout opportunities.
 
 ### Getting Started
@@ -56,7 +59,8 @@ Welcome to the LBO Deal Screener! This tool helps you analyze leveraged buyout o
 ✅ Enhanced visualizations
 ✅ Scenario comparison
 ✅ Excel export
-""")
+"""
+)
 
 # Show current status
 if st.session_state.current_results:
